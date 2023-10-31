@@ -77,7 +77,7 @@
           "type": "string"
         },
         "ai-commit.AZURE_API_VERSION": {
-          "default": "2023-07-01-preview",
+          "default": "",
           "description": "AZURE API VERSION",
           "type": "string"
         },
