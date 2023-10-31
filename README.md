@@ -29,12 +29,6 @@ Review Git staged changes, generate standardized Conventional Commit messages us
 - [x] 😜 Support adding Gitmoji.
 - [x] 📝 Support Conventional Commits specification.
 
-<div align="right">
-
-[![][back-to-top]](#readme-top)
-
-</div>
-
 ## 📦 Installation
 
 1. Search for "AI Commit" in VSCode and click the "Install" button.
