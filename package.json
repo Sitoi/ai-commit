@@ -1,0 +1,159 @@
+{
+  "name": "ai-commit",
+  "displayName": "AI Commit",
+  "description": "An ai commit vscode plugin powered by gpt",
+  "version": "0.0.2",
+  "engines": {
+    "node": ">=16",
+    "vscode": "^1.77.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "publisher": "sitoi",
+  "repository": "https://github.com/sitoi/ai-commit",
+  "icon": "images/logo.png",
+  "activationEvents": [
+    "onCommand:ai-commit"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.ai-commit",
+        "icon": {
+          "dark": "images/icon-dark.svg",
+          "light": "images/icon-light.svg"
+        },
+        "title": "AI Commit"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "ai-commit.AI_COMMIT_LANGUAGE": {
+          "default": "en",
+          "description": "Commit message language",
+          "enum": [
+            "zh_CN",
+            "zh_TW",
+            "ja",
+            "ko",
+            "cs",
+            "de",
+            "fr",
+            "it",
+            "nl",
+            "pt_br",
+            "vi_VN",
+            "en",
+            "es_ES",
+            "sv",
+            "ru",
+            "id_ID",
+            "pl",
+            "tr",
+            "th"
+          ],
+          "enumDescriptions": [
+            "简体中文",
+            "繁體中文",
+            "にほんご",
+            "한국어",
+            "česky",
+            "Deutsch",
+            "française",
+            "italiano",
+            "Nederlands",
+            "português",
+            "tiếng Việt",
+            "english",
+            "español",
+            "Svenska",
+            "русский",
+            "bahasa",
+            "Polski",
+            "Turkish",
+            "ไทย"
+          ],
+          "type": "string"
+        },
+        "ai-commit.AZURE_API_VERSION": {
+          "default": "2023-07-01-preview",
+          "description": "AZURE API VERSION",
+          "type": "string"
+        },
+        "ai-commit.EMOJI_ENABLED": {
+          "default": true,
+          "description": "Enable Emoji",
+          "type": "boolean"
+        },
+        "ai-commit.FULL_GITMOJI_SPEC": {
+          "default": false,
+          "description": "Enable full GitEmoji specification",
+          "type": "boolean"
+        },
+        "ai-commit.OPENAI_API_KEY": {
+          "default": "",
+          "description": "OpenAI API Key",
+          "type": "string"
+        },
+        "ai-commit.OPENAI_BASE_URL": {
+          "default": "",
+          "description": "OpenAI BASE URL",
+          "type": "string"
+        },
+        "ai-commit.OPENAI_MODEL": {
+          "default": "gpt-3.5-turbo",
+          "description": "OpenAI MODEL",
+          "type": "string"
+        }
+      },
+      "title": "AI Commit"
+    },
+    "menus": {
+      "scm/title": [
+        {
+          "command": "extension.ai-commit",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "main": "./dist/extension.js",
+  "scripts": {
+    "build": "webpack --mode production --devtool hidden-source-map",
+    "compile": "webpack",
+    "compile-tests": "tsc -p . --outDir out",
+    "lint": "eslint src --ext ts",
+    "package": "npm vsce package --no-dependencies",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "publish": "npm vsce publish --no-dependencies",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "npm run build",
+    "watch": "webpack --watch",
+    "watch-tests": "tsc -p . -w --outDir out"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.77.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "openai": "^4.14.2",
+    "simple-git": "^3.17.0"
+  },
+  "resolutions": {
+    "@types/node": "16.x"
+  },
+  "license": "MIT"
+}
