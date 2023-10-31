@@ -107,7 +107,7 @@ $ npm install
 
 ---
 
-#### 📝 License
+## 📝 License
 
 This project is [MIT](./LICENSE) licensed.
 

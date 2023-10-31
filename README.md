@@ -95,7 +95,7 @@ Contributions of all types are more than welcome, if you are interested in contr
 
 ---
 
-#### 📝 License
+## 📝 License
 
 This project is [MIT](./LICENSE) licensed.
 
