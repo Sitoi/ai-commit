@@ -84,13 +84,9 @@ $ npm install
 
 [![][pr-welcome-shield]][pr-welcome-link]
 
+### 💗 感谢我们的贡献者
+
 [![][github-contrib-shield]][github-contrib-link]
-
-<div align="right">
-
-[![][back-to-top]](#readme-top)
-
-</div>
 
 ## 🔗 链接
 
@@ -98,12 +94,6 @@ $ npm install
 
 - **auto-commit** - <https://github.com/lynxife/auto-commit>
 - **opencommit** - <https://github.com/di-sukharev/opencommit>
-
-<div align="right">
-
-[![][back-to-top]](#readme-top)
-
-</div>
 
 ---
 
