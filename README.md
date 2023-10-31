@@ -104,7 +104,7 @@ This project is [MIT](./LICENSE) licensed.
 <!-- LINK GROUP -->
 
 [github-codespace-link]: https://codespaces.new/sitoi/ai-commit
-[github-codespace-shield]: https://github.com/codespaces/badge.svg
+[github-codespace-shield]: https://github.com/sitoi/ai-commit/blob/main/images/codespaces.png?raw=true
 [github-contributors-link]: https://github.com/sitoi/ai-commit/graphs/contributors
 [github-contributors-shield]: https://img.shields.io/github/contributors/sitoi/ai-commit?color=c4f042&labelColor=black&style=flat-square
 [github-forks-link]: https://github.com/sitoi/ai-commit/network/members
