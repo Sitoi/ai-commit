@@ -2,7 +2,7 @@
   "name": "ai-commit",
   "displayName": "AI Commit",
   "description": "An ai commit vscode plugin powered by gpt",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "node": ">=16",
     "vscode": "^1.77.0"
