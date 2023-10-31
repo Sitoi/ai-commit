@@ -6,7 +6,7 @@
 
 <h1>AI Commit</h1>
 
-审查 Git 暂存区修改，借助 Azure/OpenAI API 生成规范的 Conventional Commit 消息，简化提交，保持一致规范。
+使用 Azure/OpenAI API 审查 Git 暂存区修改，生成符合 Conventional Commit 规范的提交消息，简化提交流程，保持提交规范一致。
 
 [English](./README.md) · **简体中文** · [报告问题][github-issues-link] · [请求功能][github-issues-link]
 
@@ -16,6 +16,9 @@
 [![][github-forks-shield]][github-forks-link]
 [![][github-stars-shield]][github-stars-link]
 [![][github-issues-shield]][github-issues-link]
+[![][vscode-marketplace-shield]][vscode-marketplace-link]
+[![][total-installs-shield]][total-installs-link]
+[![][avarage-rating-shield]][avarage-rating-link]
 [![][github-license-shield]][github-license-link]
 
 ![](https://github.com/sitoi/ai-commit/blob/main/aicommit.gif?raw=true)
@@ -24,10 +27,10 @@
 
 ## ✨ 特性
 
-- [x] 🤯 支持使用 ChatGPT / Azure API 根据 git diffs 自动生成提交信息
-- [x] 🗺️ 支持多语言提交信息
-- [x] 😜 支持添加 Gitmoji
-- [x] 📝 支持 Conventional Commits 规范
+- 🤯 支持使用 ChatGPT / Azure API 根据 git diffs 自动生成提交信息
+- 🗺️ 支持多语言提交信息
+- 😜 支持添加 Gitmoji
+- 📝 支持 Conventional Commits 规范
 
 ## 📦 安装
 
@@ -119,3 +122,9 @@ This project is [MIT](./LICENSE) licensed.
 [pr-welcome-shield]: https://img.shields.io/badge/🤯_pr_welcome-%E2%86%92-ffcb47?labelColor=black&style=for-the-badge
 [github-contrib-link]: https://github.com/sitoi/ai-commit/graphs/contributors
 [github-contrib-shield]: https://contrib.rocks/image?repo=sitoi%2Fai-commit
+[vscode-marketplace-link]: https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit
+[vscode-marketplace-shield]: https://img.shields.io/vscode-marketplace/v/Sitoi.ai-commit.svg?label=vscode%20marketplace&color=blue&labelColor=black&style=flat-square
+[total-installs-link]: https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit
+[total-installs-shield]: https://img.shields.io/vscode-marketplace/d/Sitoi.ai-commit.svg?&labelColor=black&style=flat-square
+[avarage-rating-link]: https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit
+[avarage-rating-shield]: https://img.shields.io/vscode-marketplace/r/Sitoi.ai-commit.svg?color=green&labelColor=black&style=flat-square

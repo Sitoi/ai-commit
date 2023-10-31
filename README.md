@@ -6,9 +6,9 @@
 
 <h1>AI Commit</h1>
 
-Review Git staged changes, generate standardized Conventional Commit messages using Azure/OpenAI API to simplify submissions and maintain consistency.
+Use Azure/OpenAI API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.
 
-**English** · [简体中文](./README.zh_CN.md) · [报告问题][github-issues-link] · [请求功能][github-issues-link]
+**English** · [简体中文](./README.zh_CN.md) · [Report Bug][github-issues-link] · [Request Feature][github-issues-link]
 
 <!-- SHIELD GROUP -->
 
@@ -16,6 +16,9 @@ Review Git staged changes, generate standardized Conventional Commit messages us
 [![][github-forks-shield]][github-forks-link]
 [![][github-stars-shield]][github-stars-link]
 [![][github-issues-shield]][github-issues-link]
+[![][vscode-marketplace-shield]][vscode-marketplace-link]
+[![][total-installs-shield]][total-installs-link]
+[![][avarage-rating-shield]][avarage-rating-link]
 [![][github-license-shield]][github-license-link]
 
 ![](https://github.com/sitoi/ai-commit/blob/main/aicommit.gif?raw=true)
@@ -24,10 +27,10 @@ Review Git staged changes, generate standardized Conventional Commit messages us
 
 ## ✨ Features
 
-- [x] 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API.
-- [x] 🗺️ Support multi-language commit messages.
-- [x] 😜 Support adding Gitmoji.
-- [x] 📝 Support Conventional Commits specification.
+- 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API.
+- 🗺️ Support multi-language commit messages.
+- 😜 Support adding Gitmoji.
+- 📝 Support Conventional Commits specification.
 
 ## 📦 Installation
 
@@ -119,3 +122,9 @@ This project is [MIT](./LICENSE) licensed.
 [pr-welcome-shield]: https://img.shields.io/badge/🤯_pr_welcome-%E2%86%92-ffcb47?labelColor=black&style=for-the-badge
 [github-contrib-link]: https://github.com/sitoi/ai-commit/graphs/contributors
 [github-contrib-shield]: https://contrib.rocks/image?repo=sitoi%2Fai-commit
+[vscode-marketplace-link]: https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit
+[vscode-marketplace-shield]: https://img.shields.io/vscode-marketplace/v/Sitoi.ai-commit.svg?label=vscode%20marketplace&color=blue&labelColor=black&style=flat-square
+[total-installs-link]: https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit
+[total-installs-shield]: https://img.shields.io/vscode-marketplace/d/Sitoi.ai-commit.svg?&color=greeen&labelColor=black&style=flat-square
+[avarage-rating-link]: https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit
+[avarage-rating-shield]: https://img.shields.io/vscode-marketplace/r/Sitoi.ai-commit.svg?&color=green&labelColor=black&style=flat-square
