@@ -1,14 +1,27 @@
 {
   "name": "ai-commit",
   "displayName": "AI Commit",
-  "description": "An ai commit vscode plugin powered by gpt",
-  "version": "0.0.3",
+  "description": "Use Azure/OpenAI API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.",
+  "version": "0.0.4",
   "engines": {
     "node": ">=16",
     "vscode": "^1.77.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "Azure",
+    "OpenAI",
+    "ChatGPT",
+    "GitEmoji",
+    "Git Commit",
+    "Conventional Commits",
+    "Commitizen",
+    "Commit Message",
+    "Commit Message Generator",
+    "AI Commit",
+    "Auto Commit"
   ],
   "publisher": "sitoi",
   "repository": "https://github.com/sitoi/ai-commit",
@@ -21,8 +34,8 @@
       {
         "command": "extension.ai-commit",
         "icon": {
-          "dark": "images/icon-dark.svg",
-          "light": "images/icon-light.svg"
+          "dark": "images/icon.svg",
+          "light": "images/icon.svg"
         },
         "title": "AI Commit"
       }
