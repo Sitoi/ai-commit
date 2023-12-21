@@ -2,7 +2,7 @@
   "name": "ai-commit",
   "displayName": "AI Commit",
   "description": "Use Azure/OpenAI API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "node": ">=16",
     "vscode": "^1.77.0"
@@ -146,6 +146,7 @@
     "watch-tests": "tsc -p . -w --outDir out"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
@@ -163,7 +164,8 @@
   },
   "dependencies": {
     "openai": "^4.14.2",
-    "simple-git": "^3.17.0"
+    "simple-git": "^3.17.0",
+    "fs-extra": "^11.0.4"
   },
   "resolutions": {
     "@types/node": "16.x"
