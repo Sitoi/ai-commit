@@ -47,6 +47,13 @@ export async function getRepo(arg) {
   }
   return gitApi.repositories[0];
 }
+/**
+ * Generates a commit message based on the changes staged in the repository.
+ * 
+ * @param {any} arg - The input argument containing the root URI of the repository.
+ * @returns {Promise<void>} - A promise that resolves when the commit message has been generated and set in the SCM input box.
+ */
+
 
 export async function generateCommitMsg(arg) {
   const repo = await getRepo(arg);
