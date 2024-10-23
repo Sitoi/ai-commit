@@ -58,7 +58,7 @@ export async function getRepo(arg) {
 export async function generateCommitMsg(arg) {
   const repo = await getRepo(arg);
   const apiKey = getConfig<string>(ConfigKeys.OPENAI_API_KEY);
-  const diff = await getDiffStaged(repo);
+  const { diff, error } = await getDiffStaged(repo);
 
   if (!apiKey) {
     infoMsg('OpenAI API Key Not Set');
@@ -67,6 +67,17 @@ export async function generateCommitMsg(arg) {
 
   infoMsg('gitRootPath: ' + repo.rootUri.fsPath);
   const scmInputBox = repo.inputBox as vscode.SourceControlInputBox;
+
+  if (error) {
+    scmInputBox.value = `Error: ${error}`;
+    return;
+  }
+
+  if (!diff || diff === 'No changes staged.') {
+    scmInputBox.value = 'No changes staged.';
+    return;
+  }
+
   const messages = await generateCommitMessageChatCompletionPrompt(diff);
   if (scmInputBox) {
     const edit = new vscode.WorkspaceEdit();
