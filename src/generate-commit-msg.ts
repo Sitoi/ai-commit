@@ -6,6 +6,12 @@ import { errMsg, infoMsg } from './utils';
 import { ChatGPTAPI } from './openai-utils';
 import { getMainCommitPrompt } from './prompts';
 
+/**
+ * Generates a chat completion prompt for the commit message based on the provided diff.
+ * 
+ * @param {string} diff - The diff string representing changes to be committed.
+ * @returns {Promise<Array<{ role: string, content: string }>>} - A promise that resolves to an array of messages for the chat completion.
+ */
 const generateCommitMessageChatCompletionPrompt = async (diff: string) => {
   const INIT_MESSAGES_PROMPT = await getMainCommitPrompt();
   const chatContextAsCompletionRequest = [...INIT_MESSAGES_PROMPT];
@@ -17,6 +23,12 @@ const generateCommitMessageChatCompletionPrompt = async (diff: string) => {
   return chatContextAsCompletionRequest;
 };
 
+/**
+ * Retrieves the repository associated with the provided argument.
+ * 
+ * @param {any} arg - The input argument containing the root URI of the repository.
+ * @returns {Promise<vscode.SourceControlRepository>} - A promise that resolves to the repository object.
+ */
 export async function getRepo(arg) {
   const gitApi = vscode.extensions.getExtension('vscode.git').exports.getAPI(1);
   if (typeof arg === 'object' && arg.rootUri) {

@@ -1,16 +1,35 @@
 import { i18n, I18nLocals } from './i18n';
-
 import { ConfigKeys, getConfig } from './config';
 import { removeConventionalCommitWord } from './utils';
 
+/**
+ * Retrieves the current language setting from the configuration.
+ * @constant {string} language - The language for commit messages.
+ * @constant {boolean} emoji_enabled - Flag indicating if emojis are enabled.
+ * @constant {boolean} fullGitMojiSpec - Flag indicating if full GitMoji specification is used.
+ */
 const language = getConfig<string>(ConfigKeys.AI_COMMIT_LANGUAGE);
 const emoji_enabled = getConfig<boolean>(ConfigKeys.EMOJI_ENABLED);
 const fullGitMojiSpec = getConfig<boolean>(ConfigKeys.FULL_GITMOJI_SPEC);
 
+/**
+ * Retrieves the translation for the specified language.
+ * @constant {I18nLocals} translation - The translation object for the current language.
+ */
 const translation = i18n[(language as I18nLocals) || 'en'];
 
+/**
+ * The identity prompt for the AI commit message generator.
+ * @constant {string} IDENTITY - The identity description for the AI.
+ */
 export const IDENTITY = 'You are to act as the author of a commit message in git.';
 
+/**
+ * Initializes the main prompt for generating commit messages.
+ * 
+ * @param {string} language - The language to be used in the prompt.
+ * @returns {Object} - The main prompt object containing role and content.
+ */
 const INIT_MAIN_PROMPT = (language: string) => ({
   role: 'system',
   content: `${IDENTITY} Your mission is to create clean and comprehensive commit messages as per the ${
@@ -101,6 +120,11 @@ const INIT_MAIN_PROMPT = (language: string) => ({
     }\nDon't add any descriptions to the commit, only commit message.\nUse the present tense. Lines must not be longer than 74 characters. Use ${language} for the commit message.`
 });
 
+/**
+ * Initializes the diff prompt for generating commit messages based on the provided diff.
+ * 
+ * @type {Object} INIT_DIFF_PROMPT - The prompt object for the user role containing the diff content.
+ */
 export const INIT_DIFF_PROMPT = {
   role: 'user',
   content: `diff --git a/src/server.ts b/src/server.ts
@@ -129,6 +153,12 @@ export const INIT_DIFF_PROMPT = {
                   });`
 };
 
+/**
+ * Initializes the consistency prompt for generating commit messages.
+ * 
+ * @param {Object} translation - The translation object containing commit message templates.
+ * @returns {Object} - The consistency prompt object containing role and content.
+ */
 const INIT_CONSISTENCY_PROMPT = (translation) => ({
   role: 'assistant',
   content: `${
@@ -144,6 +174,11 @@ const INIT_CONSISTENCY_PROMPT = (translation) => ({
 `
 });
 
+/**
+ * Retrieves the main commit prompt, including the main prompt, diff prompt, and consistency prompt.
+ * 
+ * @returns {Promise<Array<Object>>} - A promise that resolves to an array of prompts for generating commit messages.
+ */
 export const getMainCommitPrompt = async () => {
   return [
     INIT_MAIN_PROMPT(translation.localLanguage),
