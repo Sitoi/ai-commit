@@ -88,7 +88,27 @@ export async function generateCommitMsg(arg) {
         scmInputBox.value += res;
       })
       .catch((err) => {
-        errMsg('API ERROR: ', err);
+        let errorMessage = 'An unexpected error occurred';
+        
+        if (err.response?.status) {
+          switch (err.response.status) {
+            case 401:
+              errorMessage = 'Invalid API key or unauthorized access';
+              break;
+            case 429:
+              errorMessage = 'Rate limit exceeded. Please try again later';
+              break;
+            case 500:
+              errorMessage = 'OpenAI server error. Please try again later';
+              break;
+            case 503:
+              errorMessage = 'OpenAI service is temporarily unavailable';
+              break;
+          }
+        }
+        
+        errMsg('API ERROR: ' + errorMessage, err);
+        scmInputBox.value = `Error: ${errorMessage}`;
       });
     await vscode.workspace.applyEdit(edit);
   } else {
