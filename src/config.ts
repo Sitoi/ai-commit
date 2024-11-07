@@ -8,26 +8,49 @@ import * as vscode from 'vscode';
  * @property {string} OPENAI_MODEL - The model used for OpenAI.
  * @property {string} AZURE_API_VERSION - The version of Azure API.
  * @property {string} AI_COMMIT_LANGUAGE - The language for AI commit messages.
- * @property {string} EMOJI_ENABLED - Flag to enable emoji in commit messages.
- * @property {string} FULL_GITMOJI_SPEC - The full specification for Gitmoji.
+ * @property {string} SYSTEM_PROMPT - The system prompt for generating commit messages.
  */
-export const ConfigKeys = {
-  OPENAI_API_KEY: 'OPENAI_API_KEY',
-  OPENAI_BASE_URL: 'OPENAI_BASE_URL',
-  OPENAI_MODEL: 'OPENAI_MODEL',
-  AZURE_API_VERSION: 'AZURE_API_VERSION',
-  AI_COMMIT_LANGUAGE: 'AI_COMMIT_LANGUAGE',
-  EMOJI_ENABLED: 'EMOJI_ENABLED',
-  FULL_GITMOJI_SPEC: 'FULL_GITMOJI_SPEC'
-};
+export enum ConfigKeys {
+  OPENAI_API_KEY = 'OPENAI_API_KEY',
+  OPENAI_BASE_URL = 'OPENAI_BASE_URL',
+  OPENAI_MODEL = 'OPENAI_MODEL',
+  AZURE_API_VERSION = 'AZURE_API_VERSION',
+  AI_COMMIT_LANGUAGE = 'AI_COMMIT_LANGUAGE',
+  SYSTEM_PROMPT = 'AI_COMMIT_SYSTEM_PROMPT'
+}
 
 /**
- * Retrieves the configuration value for a given key.
- * 
- * @param {string} key - The configuration key to retrieve.
- * @returns {T} - The value associated with the configuration key, or null if not found.
+ * Manages the configuration for the AI commit extension.
  */
-export function getConfig<T>(key: string): T {
-  const config = vscode.workspace.getConfiguration('ai-commit');
-  return config.get<T>(key, null as unknown as T);
+export class ConfigurationManager {
+  private static instance: ConfigurationManager;
+  private configCache: Map<string, any> = new Map();
+  private disposable: vscode.Disposable;
+
+  private constructor() {
+    this.disposable = vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('ai-commit')) {
+        this.configCache.clear();
+      }
+    });
+  }
+
+  static getInstance(): ConfigurationManager {
+    if (!this.instance) {
+      this.instance = new ConfigurationManager();
+    }
+    return this.instance;
+  }
+
+  getConfig<T>(key: string, defaultValue?: T): T {
+    if (!this.configCache.has(key)) {
+      const config = vscode.workspace.getConfiguration('ai-commit');
+      this.configCache.set(key, config.get<T>(key, defaultValue));
+    }
+    return this.configCache.get(key);
+  }
+
+  dispose() {
+    this.disposable.dispose();
+  }
 }
