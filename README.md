@@ -30,6 +30,7 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 - 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API.
 - 🗺️ Support multi-language commit messages.
 - 😜 Support adding Gitmoji.
+- 🛠️ Support custom system prompt.
 - 📝 Support Conventional Commits specification.
 
 ## 📦 Installation
@@ -53,17 +54,18 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 
 ### ⚙️ Configuration
 
+> **Note** Version >= 0.0.5 Don't need to configure `EMOJI_ENABLED` and `FULL_GITMOJI_SPEC`,If don't need to use `Gitmoji`. Please set `SYSTEM_PROMPT` to empty.
+
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
-| Configuration      |  Type   |    Default    | Required |                                            Notes                                             |
-| :----------------- | :-----: | :-----------: | :------: | :------------------------------------------------------------------------------------------: |
-| OPENAI_API_KEY     | string  |     None      |   Yes    |                 [OpenAI token](https://platform.openai.com/account/api-keys)                 |
-| OPENAI_BASE_URL    | string  |     None      |    No    |     If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}      |
-| OPENAI_MODEL       | string  | gpt-3.5-turbo |   Yes    |                                         OpenAI MODEL                                         |
-| AZURE_API_VERSION  | string  |     None      |    No    |                                      AZURE_API_VERSION                                       |
-| AI_COMMIT_LANGUAGE | string  |      en       |   Yes    |                                    Supports 19 languages                                     |
-| EMOJI_ENABLED      | boolean |     true      |   Yes    |                                   Enable or disable Emoji                                    |
-| FULL_GITMOJI_SPEC  | boolean |     false     |    No    | Enable the complete GitEmoji specification, see [https://gitmoji.dev/](https://gitmoji.dev/) |
+| Configuration      |  Type  | Default | Required |                                        Notes                                        |
+| :----------------- | :----: | :-----: | :------: | :---------------------------------------------------------------------------------: |
+| OPENAI_API_KEY     | string |  None   |   Yes    |            [OpenAI token](https://platform.openai.com/account/api-keys)             |
+| OPENAI_BASE_URL    | string |  None   |    No    | If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model} |
+| OPENAI_MODEL       | string | gpt-4o  |   Yes    |                                    OpenAI MODEL                                     |
+| AZURE_API_VERSION  | string |  None   |    No    |                                  AZURE_API_VERSION                                  |
+| AI_COMMIT_LANGUAGE | string |   en    |   Yes    |                                Supports 19 languages                                |
+| SYSTEM_PROMPT      | string |  None   |    No    |                                Custom system prompt                                 |
 
 ## ⌨️ Local Development
 

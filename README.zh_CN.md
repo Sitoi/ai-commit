@@ -30,6 +30,7 @@
 - 🤯 支持使用 ChatGPT / Azure API 根据 git diffs 自动生成提交信息
 - 🗺️ 支持多语言提交信息
 - 😜 支持添加 Gitmoji
+- 🛠️ 支持自定义系统提示词
 - 📝 支持 Conventional Commits 规范
 
 ## 📦 安装
@@ -53,17 +54,18 @@
 
 ### ⚙️ 配置
 
+> **Note** Version >= 0.0.5 不需要配置 `EMOJI_ENABLED` 和 `FULL_GITMOJI_SPEC`，如果不需要使用 `Gitmoji`，请将 `SYSTEM_PROMPT` 设置为空。
+
 在 `VSCode` 设置中，找到 "ai-commit" 配置项，并根据需要进行配置
 
-| 配置               |  类型   |     默认      | 必要 |                                        备注                                        |
-| :----------------- | :-----: | :-----------: | :--: | :--------------------------------------------------------------------------------: |
-| OPENAI_API_KEY     | string  |     None      |  是  |            [OpenAI 令牌](https://platform.openai.com/account/api-keys)             |
-| OPENAI_BASE_URL    | string  |     None      |  否  | 如果是 Azure，使用：https://{resource}.openai.azure.com/openai/deployments/{model} |
-| OPENAI_MODEL       | string  | gpt-3.5-turbo |  是  |                                    OpenAI MODEL                                    |
-| AZURE_API_VERSION  | string  |     None      |  否  |                                 AZURE_API_VERSION                                  |
-| AI_COMMIT_LANGUAGE | string  |      en       |  是  |                                   支持 19 种语言                                   |
-| EMOJI_ENABLED      | boolean |     true      |  是  |                                   是否开启 Emoji                                   |
-| FULL_GITMOJI_SPEC  | boolean |     false     |  否  |  是否开启完整的 GitEmoji 规范，参考 [https://gitmoji.dev/](https://gitmoji.dev/)   |
+| 配置               |  类型  |  默认  | 必要 |                                        备注                                        |
+| :----------------- | :----: | :----: | :--: | :--------------------------------------------------------------------------------: |
+| OPENAI_API_KEY     | string |  None  |  是  |            [OpenAI 令牌](https://platform.openai.com/account/api-keys)             |
+| OPENAI_BASE_URL    | string |  None  |  否  | 如果是 Azure，使用：https://{resource}.openai.azure.com/openai/deployments/{model} |
+| OPENAI_MODEL       | string | gpt-4o |  是  |                                    OpenAI MODEL                                    |
+| AZURE_API_VERSION  | string |  None  |  否  |                                 AZURE_API_VERSION                                  |
+| AI_COMMIT_LANGUAGE | string |   en   |  是  |                                   支持 19 种语言                                   |
+| SYSTEM_PROMPT      | string |  None  |  否  |                                  自定义系统提示词                                  |
 
 ## ⌨️ 本地开发
 
