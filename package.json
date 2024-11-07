@@ -43,28 +43,28 @@
     "configuration": {
       "properties": {
         "ai-commit.AI_COMMIT_LANGUAGE": {
-          "default": "en",
+          "default": "English",
           "description": "Commit message language",
           "enum": [
-            "zh_CN",
-            "zh_TW",
-            "ja",
-            "ko",
-            "cs",
-            "de",
-            "fr",
-            "it",
-            "nl",
-            "pt_br",
-            "vi_VN",
-            "en",
-            "es_ES",
-            "sv",
-            "ru",
-            "id_ID",
-            "pl",
-            "tr",
-            "th"
+            "Simplified Chinese",
+            "Traditional Chinese",
+            "Japanese",
+            "Korean",
+            "Czech",
+            "German",
+            "French",
+            "Italian",
+            "Dutch",
+            "Portuguese",
+            "Vietnamese",
+            "English",
+            "Spanish",
+            "Swedish",
+            "Russian",
+            "Bahasa",
+            "Polish",
+            "Turkish",
+            "Thai"
           ],
           "enumDescriptions": [
             "简体中文",
@@ -94,16 +94,6 @@
           "description": "AZURE API VERSION",
           "type": "string"
         },
-        "ai-commit.EMOJI_ENABLED": {
-          "default": true,
-          "description": "Enable Emoji",
-          "type": "boolean"
-        },
-        "ai-commit.FULL_GITMOJI_SPEC": {
-          "default": false,
-          "description": "Enable full GitEmoji specification",
-          "type": "boolean"
-        },
         "ai-commit.OPENAI_API_KEY": {
           "default": "",
           "description": "OpenAI API Key",
@@ -115,9 +105,14 @@
           "type": "string"
         },
         "ai-commit.OPENAI_MODEL": {
-          "default": "gpt-3.5-turbo",
+          "default": "gpt-4o",
           "description": "OpenAI MODEL",
           "type": "string"
+        },
+        "ai-commit.AI_COMMIT_SYSTEM_PROMPT": {
+          "type": "string",
+          "default": "",
+          "description": "Custom system prompt for generating commit messages"
         }
       },
       "title": "AI Commit"
