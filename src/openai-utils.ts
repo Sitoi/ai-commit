@@ -1,60 +1,66 @@
 import OpenAI from 'openai';
-import { ConfigKeys, getConfig } from './config';
+import { ChatCompletionMessageParam } from 'openai/resources';
+import { ConfigKeys, ConfigurationManager } from './config';
 
 /**
- * Retrieves the OpenAI API key from the configuration.
- * @constant {string} apiKey - The OpenAI API key.
- * @constant {string} baseURL - The base URL for the OpenAI API.
- * @constant {string} model - The model used for OpenAI.
- * @constant {string} apiVersion - The version of the Azure API.
+ * Creates and returns an OpenAI configuration object.
+ * @returns {Object} - The OpenAI configuration object.
  * @throws {Error} - Throws an error if the API key is missing or empty.
  */
-const apiKey = getConfig<string>(ConfigKeys.OPENAI_API_KEY);
-const baseURL = getConfig<string>(ConfigKeys.OPENAI_BASE_URL);
-const model = getConfig<string>(ConfigKeys.OPENAI_MODEL);
-const apiVersion = getConfig<string>(ConfigKeys.AZURE_API_VERSION);
+function getOpenAIConfig() {
+  const configManager = ConfigurationManager.getInstance();
+  const apiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
+  const baseURL = configManager.getConfig<string>(ConfigKeys.OPENAI_BASE_URL);
+  const apiVersion = configManager.getConfig<string>(ConfigKeys.AZURE_API_VERSION);
 
-if (!apiKey) {
-  throw new Error('The OPENAI_API_KEY environment variable is missing or empty.');
+  if (!apiKey) {
+    throw new Error('The OPENAI_API_KEY environment variable is missing or empty.');
+  }
+
+  const config: {
+    apiKey: string;
+    baseURL?: string;
+    defaultQuery?: { 'api-version': string };
+    defaultHeaders?: { 'api-key': string };
+  } = {
+    apiKey
+  };
+
+  if (baseURL) {
+    config.baseURL = baseURL;
+    if (apiVersion) {
+      config.defaultQuery = { 'api-version': apiVersion };
+      config.defaultHeaders = { 'api-key': apiKey };
+    }
+  }
+
+  return config;
 }
 
 /**
- * Configuration object for OpenAI API.
- * @type {Object}
- * @property {string} apiKey - The API key for OpenAI.
- * @property {string} [baseURL] - The base URL for OpenAI API, if provided.
- * @property {Object} [defaultQuery] - Default query parameters for API requests.
- * @property {Object} [defaultHeaders] - Default headers for API requests.
+ * Creates and returns an OpenAI API instance.
+ * @returns {OpenAI} - The OpenAI API instance.
  */
-const openaiConfig: {
-  apiKey: string;
-  baseURL?: string;
-  defaultQuery?: { 'api-version': string };
-  defaultHeaders?: { 'api-key': string };
-} = {
-  apiKey
-};
-
-if (apiVersion) {
-  openaiConfig.defaultQuery = { 'api-version': apiVersion };
-  openaiConfig.defaultHeaders = { 'api-key': apiKey };
+export function createOpenAIApi() {
+  const config = getOpenAIConfig();
+  return new OpenAI(config);
 }
-if (baseURL) {
-  openaiConfig.baseURL = baseURL;
-}
-console.log('openaiConfig: ', openaiConfig);
-const openai = new OpenAI(openaiConfig);
 
 /**
  * Sends a chat completion request to the OpenAI API.
- * 
- * @param {Array<Object>} messages - An array of
- * @returns {string} - The response from the OpenAI API.
+ * @param {Array<Object>} messages - The messages to send to the API.
+ * @returns {Promise<string>} - A promise that resolves to the API response.
  */
-export async function ChatGPTAPI(messages) {
-  const result = await openai.chat.completions.create({
+export async function ChatGPTAPI(messages: ChatCompletionMessageParam[]) {
+  const openai = createOpenAIApi();
+  const model = ConfigurationManager.getInstance().getConfig<string>(
+    ConfigKeys.OPENAI_MODEL
+  );
+
+  const completion = await openai.chat.completions.create({
     model,
-    messages
+    messages: messages as ChatCompletionMessageParam[]
   });
-  return result.choices[0]!.message?.content;
+
+  return completion.choices[0]!.message?.content;
 }
