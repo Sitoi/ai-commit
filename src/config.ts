@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { Agent } from 'https';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 /**
  * Configuration keys used in the AI commit extension.
@@ -48,6 +50,15 @@ export class ConfigurationManager {
       this.configCache.set(key, config.get<T>(key, defaultValue));
     }
     return this.configCache.get(key);
+  }
+
+  getProxyAgent(): Agent | undefined {
+    const proxy = vscode.workspace.getConfiguration().get<string>('http.proxy');
+    console.warn('Debug: ', proxy);
+    if (proxy) {
+      return new HttpsProxyAgent(proxy);
+    }
+    return undefined;
   }
 
   dispose() {
