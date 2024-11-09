@@ -95,12 +95,12 @@ diff --git a/src/server.ts b/src/server.ts\n index ad4db42..f3b18a9 100644\n ---
 
 OUTPUT:
 
-♻️ refactor(server): 优化服务器端口配置
+♻️ refactor(server): optimize server port configuration
 
-- 将端口变量名改为大写（PORT）以符合常量命名规范
-- 添加环境变量端口配置支持，提高部署灵活性
+- rename port variable to uppercase (PORT) to follow constant naming convention
+- add environment variable port support for flexible deployment
 
-Remember: You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
+Remember: All output MUST be in ${language} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
 });
 
 /**
