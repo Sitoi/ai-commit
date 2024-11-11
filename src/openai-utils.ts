@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { ConfigKeys, ConfigurationManager } from './config';
+import { type Agent } from 'http';
 
 /**
  * Creates and returns an OpenAI configuration object.
@@ -12,6 +13,7 @@ function getOpenAIConfig() {
   const apiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
   const baseURL = configManager.getConfig<string>(ConfigKeys.OPENAI_BASE_URL);
   const apiVersion = configManager.getConfig<string>(ConfigKeys.AZURE_API_VERSION);
+  const httpAgent = configManager.getProxyAgent();
 
   if (!apiKey) {
     throw new Error('The OPENAI_API_KEY environment variable is missing or empty.');
@@ -20,11 +22,16 @@ function getOpenAIConfig() {
   const config: {
     apiKey: string;
     baseURL?: string;
+    httpAgent?: Agent;
     defaultQuery?: { 'api-version': string };
     defaultHeaders?: { 'api-key': string };
   } = {
     apiKey
   };
+
+  if (httpAgent) {
+    config.httpAgent = httpAgent;
+  }
 
   if (baseURL) {
     config.baseURL = baseURL;
