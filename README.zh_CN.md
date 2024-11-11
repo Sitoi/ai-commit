@@ -54,7 +54,7 @@
 
 ### ⚙️ 配置
 
-> **Note** Version >= 0.0.5 不需要配置 `EMOJI_ENABLED` 和 `FULL_GITMOJI_SPEC`，如果不需要使用 `Gitmoji`，请将 `SYSTEM_PROMPT` 设置为空。
+> **Note** Version >= 0.0.5 不需要配置 `EMOJI_ENABLED` 和 `FULL_GITMOJI_SPEC`，默认提示词为 [prompt/without_gitmoji.md](./prompt/without_gitmoji.md)，如果不需要使用 `Gitmoji`，请将 `SYSTEM_PROMPT` 设置为您的自定义提示词, 请参考 [prompt/without_gitmoji.md](./prompt/without_gitmoji.md)。
 
 在 `VSCode` 设置中，找到 "ai-commit" 配置项，并根据需要进行配置
 
