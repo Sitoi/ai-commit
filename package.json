@@ -38,6 +38,10 @@
           "light": "images/icon.svg"
         },
         "title": "AI Commit"
+      },
+      {
+        "command": "ai-commit.showAvailableModels",
+        "title": "Show Available OpenAI Models"
       }
     ],
     "configuration": {
@@ -106,7 +110,7 @@
         },
         "ai-commit.OPENAI_MODEL": {
           "default": "gpt-4o",
-          "description": "OpenAI MODEL",
+          "description": "OpenAI MODEL, you can select a model from the list by running the 'Show Available OpenAI Models' command",
           "type": "string"
         },
         "ai-commit.AI_COMMIT_SYSTEM_PROMPT": {

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { generateCommitMsg } from './generate-commit-msg';
+import { ConfigurationManager } from './config';
 
 /**
  * Manages the registration and disposal of commands.
@@ -14,6 +15,20 @@ export class CommandManager {
     this.registerCommand('extension.configure-ai-commit', () =>
       vscode.commands.executeCommand('workbench.action.openSettings', 'ai-commit')
     );
+
+    // Show available OpenAI models
+    this.registerCommand('ai-commit.showAvailableModels', async () => {
+      const configManager = ConfigurationManager.getInstance();
+      const models = await configManager.getAvailableModels();
+      const selected = await vscode.window.showQuickPick(models, {
+        placeHolder: 'Please select a model'
+      });
+      
+      if (selected) {
+        const config = vscode.workspace.getConfiguration('ai-commit');
+        await config.update('OPENAI_MODEL', selected, vscode.ConfigurationTarget.Global);
+      }
+    });
   }
 
   private registerCommand(command: string, handler: (...args: any[]) => any) {
