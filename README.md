@@ -58,14 +58,14 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
-| Configuration      |  Type  | Default | Required |                                        Notes                                        |
-| :----------------- | :----: | :-----: | :------: | :---------------------------------------------------------------------------------: |
-| OPENAI_API_KEY     | string |  None   |   Yes    |            [OpenAI token](https://platform.openai.com/account/api-keys)             |
-| OPENAI_BASE_URL    | string |  None   |    No    | If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model} |
-| OPENAI_MODEL       | string | gpt-4o  |   Yes    |                                    OpenAI MODEL                                     |
-| AZURE_API_VERSION  | string |  None   |    No    |                                  AZURE_API_VERSION                                  |
-| AI_COMMIT_LANGUAGE | string |   en    |   Yes    |                                Supports 19 languages                                |
-| SYSTEM_PROMPT      | string |  None   |    No    |                                Custom system prompt                                 |
+| Configuration      |  Type  | Default | Required |                                                  Notes                                                  |
+| :----------------- | :----: | :-----: | :------: | :-----------------------------------------------------------------------------------------------------: |
+| OPENAI_API_KEY     | string |  None   |   Yes    |                      [OpenAI token](https://platform.openai.com/account/api-keys)                       |
+| OPENAI_BASE_URL    | string |  None   |    No    |           If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}           |
+| OPENAI_MODEL       | string | gpt-4o  |   Yes    | OpenAI MODEL,you can select a model from the list by running the `Show Available OpenAI Models` command |
+| AZURE_API_VERSION  | string |  None   |    No    |                                            AZURE_API_VERSION                                            |
+| AI_COMMIT_LANGUAGE | string |   en    |   Yes    |                                          Supports 19 languages                                          |
+| SYSTEM_PROMPT      | string |  None   |    No    |                                          Custom system prompt                                           |
 
 ## ⌨️ Local Development
 

@@ -58,14 +58,14 @@
 
 在 `VSCode` 设置中，找到 "ai-commit" 配置项，并根据需要进行配置
 
-| 配置               |  类型  |  默认  | 必要 |                                        备注                                        |
-| :----------------- | :----: | :----: | :--: | :--------------------------------------------------------------------------------: |
-| OPENAI_API_KEY     | string |  None  |  是  |            [OpenAI 令牌](https://platform.openai.com/account/api-keys)             |
-| OPENAI_BASE_URL    | string |  None  |  否  | 如果是 Azure，使用：https://{resource}.openai.azure.com/openai/deployments/{model} |
-| OPENAI_MODEL       | string | gpt-4o |  是  |                                    OpenAI MODEL                                    |
-| AZURE_API_VERSION  | string |  None  |  否  |                                 AZURE_API_VERSION                                  |
-| AI_COMMIT_LANGUAGE | string |   en   |  是  |                                   支持 19 种语言                                   |
-| SYSTEM_PROMPT      | string |  None  |  否  |                                  自定义系统提示词                                  |
+| 配置               |  类型  |  默认  | 必要 |                                          备注                                          |
+| :----------------- | :----: | :----: | :--: | :------------------------------------------------------------------------------------: |
+| OPENAI_API_KEY     | string |  None  |  是  |              [OpenAI 令牌](https://platform.openai.com/account/api-keys)               |
+| OPENAI_BASE_URL    | string |  None  |  否  |   如果是 Azure，使用：https://{resource}.openai.azure.com/openai/deployments/{model}   |
+| OPENAI_MODEL       | string | gpt-4o |  是  | OpenAI MODEL, 你可以通过运行 `Show Available OpenAI Models` 命令从列表中选择一个模型。 |
+| AZURE_API_VERSION  | string |  None  |  否  |                                   AZURE_API_VERSION                                    |
+| AI_COMMIT_LANGUAGE | string |   en   |  是  |                                     支持 19 种语言                                     |
+| SYSTEM_PROMPT      | string |  None  |  否  |                                    自定义系统提示词                                    |
 
 ## ⌨️ 本地开发
 
