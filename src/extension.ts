@@ -9,7 +9,7 @@ import { ConfigurationManager } from './config';
  */
 export async function activate(context: vscode.ExtensionContext) {
   try {
-    const configManager = ConfigurationManager.getInstance();
+    const configManager = ConfigurationManager.getInstance(context);
 
     const commandManager = new CommandManager(context);
     commandManager.registerCommands();

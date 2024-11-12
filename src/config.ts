@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { createOpenAIApi } from './openai-utils';
 
 /**
  * Configuration keys used in the AI commit extension.
@@ -26,18 +27,25 @@ export class ConfigurationManager {
   private static instance: ConfigurationManager;
   private configCache: Map<string, any> = new Map();
   private disposable: vscode.Disposable;
+  private context: vscode.ExtensionContext;
 
-  private constructor() {
+  private constructor(context: vscode.ExtensionContext) {
+    this.context = context;
     this.disposable = vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('ai-commit')) {
         this.configCache.clear();
+        
+        if (event.affectsConfiguration('ai-commit.OPENAI_BASE_URL') || 
+            event.affectsConfiguration('ai-commit.OPENAI_API_KEY')) {
+          this.updateModelList();
+        }
       }
     });
   }
 
-  static getInstance(): ConfigurationManager {
-    if (!this.instance) {
-      this.instance = new ConfigurationManager();
+  static getInstance(context?: vscode.ExtensionContext): ConfigurationManager {
+    if (!this.instance && context) {
+      this.instance = new ConfigurationManager(context);
     }
     return this.instance;
   }
@@ -52,5 +60,41 @@ export class ConfigurationManager {
 
   dispose() {
     this.disposable.dispose();
+  }
+
+  /**
+   * Updates the list of available OpenAI models.
+   */
+  private async updateModelList() {
+    try {
+      const openai = createOpenAIApi();
+      const models = await openai.models.list();
+      
+      // Save available models to extension state
+      await this.context.globalState.update('availableModels', models.data.map(model => model.id));
+      
+      // Get the current selected model
+      const config = vscode.workspace.getConfiguration('ai-commit');
+      const currentModel = config.get<string>('OPENAI_MODEL');
+      
+      // If the current selected model is not in the available list, set it to the default value
+      const availableModels = models.data.map(model => model.id);
+      if (!availableModels.includes(currentModel)) {
+        await config.update('OPENAI_MODEL', 'gpt-4', vscode.ConfigurationTarget.Global);
+      }
+    } catch (error) {
+      console.error('Failed to fetch OpenAI models:', error);
+    }
+  }
+
+  /**
+   * Retrieves the list of available OpenAI models.
+   * @returns {Promise<string[]>} The list of available models.
+   */
+  public async getAvailableModels(): Promise<string[]> {
+    if (!this.context.globalState.get<string[]>('availableModels')) {
+      await this.updateModelList();
+    }
+    return this.context.globalState.get<string[]>('availableModels', []);
   }
 }
