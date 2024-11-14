@@ -13,8 +13,8 @@ import { ProgressHandler } from './utils';
  * @param {string} diff - The diff string representing changes to be committed.
  * @returns {Promise<Array<{ role: string, content: string }>>} - A promise that resolves to an array of messages for the chat completion.
  */
-const generateCommitMessageChatCompletionPrompt = async (diff: string) => {
-  const INIT_MESSAGES_PROMPT = await getMainCommitPrompt();
+const generateCommitMessageChatCompletionPrompt = async (diff: string, extras: string) => {
+  const INIT_MESSAGES_PROMPT = await getMainCommitPrompt(extras);
   const chatContextAsCompletionRequest = [...INIT_MESSAGES_PROMPT];
 
   chatContextAsCompletionRequest.push({
@@ -85,7 +85,8 @@ export async function generateCommitMsg(arg) {
         }
 
         progress.report({ message: 'Analyzing changes...' });
-        const messages = await generateCommitMessageChatCompletionPrompt(diff);
+        const extras = scmInputBox.value;
+        const messages = await generateCommitMessageChatCompletionPrompt(diff, extras);
 
         progress.report({ message: 'Generating commit message...' });
         try {
