@@ -6,7 +6,7 @@ import { ConfigKeys, ConfigurationManager } from './config';
  * @param {string} language - The language to be used in the prompt.
  * @returns {Object} - The main prompt object containing role and content.
  */
-const INIT_MAIN_PROMPT = (language: string) => ({
+const INIT_MAIN_PROMPT = (language: string, extras: string) => ({
   role: 'system',
   content:
     ConfigurationManager.getInstance().getConfig<string>(ConfigKeys.SYSTEM_PROMPT) ||
@@ -78,6 +78,7 @@ You will act as a git commit message generator. When receiving a git diff, you w
 3. NO additional text or explanations
 4. NO questions or comments
 5. NO formatting instructions or metadata
+${extras ? `6. VERY IMPORTANT! ${extras}` : ''}
 
 ## Examples
 
@@ -100,7 +101,8 @@ OUTPUT:
 - rename port variable to uppercase (PORT) to follow constant naming convention
 - add environment variable port support for flexible deployment
 
-Remember: All output MUST be in ${language} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
+Remember: All output MUST be in ${language} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.
+`
 });
 
 /**
@@ -108,9 +110,9 @@ Remember: All output MUST be in ${language} language. You are to act as a pure c
  *
  * @returns {Promise<Array<Object>>} - A promise that resolves to an array of prompts.
  */
-export const getMainCommitPrompt = async () => {
+export const getMainCommitPrompt = async (extras: string) => {
   const language = ConfigurationManager.getInstance().getConfig<string>(
     ConfigKeys.AI_COMMIT_LANGUAGE
   );
-  return [INIT_MAIN_PROMPT(language)];
+  return [INIT_MAIN_PROMPT(language, extras)];
 };
