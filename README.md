@@ -46,8 +46,9 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 1. Ensure that you have installed and enabled the "AI Commit" extension.
 2. In VSCode settings, locate the "ai-commit" configuration options and configure them as needed.
 3. Make changes in your project and add the changes to the staging area (git add).
-4. Next to the commit message input box in the "Source Control" panel, click the "AI Commit" icon button. After clicking, the extension will generate a commit message and populate it in the input box.
-5. Review the generated commit message, and if you are satisfied, proceed to commit your changes.
+4. (Optional) If you want to provide additional context for the commit message, type it in the Source Control panel's message input box before clicking the AI Commit button.
+5. Next to the commit message input box in the "Source Control" panel, click the "AI Commit" icon button. After clicking, the extension will generate a commit message (considering any additional context if provided) and populate it in the input box.
+6. Review the generated commit message, and if you are satisfied, proceed to commit your changes.
 
 > **Note**\
 > If the code exceeds the maximum token length, consider adding it to the staging area in batches.

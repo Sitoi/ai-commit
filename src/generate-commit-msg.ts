@@ -11,11 +11,19 @@ import { ProgressHandler } from './utils';
  * Generates a chat completion prompt for the commit message based on the provided diff.
  *
  * @param {string} diff - The diff string representing changes to be committed.
+ * @param {string} additionalContext - Additional context for the changes.
  * @returns {Promise<Array<{ role: string, content: string }>>} - A promise that resolves to an array of messages for the chat completion.
  */
-const generateCommitMessageChatCompletionPrompt = async (diff: string) => {
+const generateCommitMessageChatCompletionPrompt = async (diff: string, additionalContext?: string) => {
   const INIT_MESSAGES_PROMPT = await getMainCommitPrompt();
   const chatContextAsCompletionRequest = [...INIT_MESSAGES_PROMPT];
+
+  if (additionalContext) {
+    chatContextAsCompletionRequest.push({
+      role: 'user',
+      content: `Additional context for the changes:\n${additionalContext}`
+    });
+  }
 
   chatContextAsCompletionRequest.push({
     role: 'user',
@@ -84,10 +92,20 @@ export async function generateCommitMsg(arg) {
           throw new Error('Unable to find the SCM input box');
         }
 
-        progress.report({ message: 'Analyzing changes...' });
-        const messages = await generateCommitMessageChatCompletionPrompt(diff);
+        const additionalContext = scmInputBox.value.trim();
 
-        progress.report({ message: 'Generating commit message...' });
+        progress.report({ 
+          message: additionalContext 
+            ? 'Analyzing changes with additional context...' 
+            : 'Analyzing changes...' 
+        });
+        const messages = await generateCommitMessageChatCompletionPrompt(diff, additionalContext);
+
+        progress.report({ 
+          message: additionalContext 
+            ? 'Generating commit message with additional context...' 
+            : 'Generating commit message...' 
+        });
         try {
           const commitMessage = await ChatGPTAPI(
             messages as ChatCompletionMessageParam[]
