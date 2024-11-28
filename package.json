@@ -113,6 +113,13 @@
           "description": "OpenAI MODEL, you can select a model from the list by running the 'Show Available OpenAI Models' command",
           "type": "string"
         },
+        "ai-commit.OPENAI_TEMPERATURE": {
+          "default": 0.2,
+          "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+          "type": "number",
+          "maximum": 2,
+          "minimum": 0
+        },
         "ai-commit.AI_COMMIT_SYSTEM_PROMPT": {
           "type": "string",
           "default": "",
