@@ -7,7 +7,7 @@ import { createOpenAIApi } from './openai-utils';
  * @property {string} OPENAI_API_KEY - The key for OpenAI API.
  * @property {string} OPENAI_BASE_URL - The base URL for OpenAI API.
  * @property {string} OPENAI_MODEL - The model used for OpenAI.
- * @property {string} OPENAI_TEMPERATURE - The temperature for OpenAI.
+ * @property {number} OPENAI_TEMPERATURE - The temperature for OpenAI.
  * @property {string} AZURE_API_VERSION - The version of Azure API.
  * @property {string} AI_COMMIT_LANGUAGE - The language for AI commit messages.
  * @property {string} SYSTEM_PROMPT - The system prompt for generating commit messages.
