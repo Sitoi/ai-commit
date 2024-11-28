@@ -11,6 +11,7 @@ function getOpenAIConfig() {
   const configManager = ConfigurationManager.getInstance();
   const apiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
   const baseURL = configManager.getConfig<string>(ConfigKeys.OPENAI_BASE_URL);
+  const temperature = configManager.getConfig<number>(ConfigKeys.OPENAI_TEMPERATURE);
   const apiVersion = configManager.getConfig<string>(ConfigKeys.AZURE_API_VERSION);
 
   if (!apiKey) {
@@ -20,6 +21,7 @@ function getOpenAIConfig() {
   const config: {
     apiKey: string;
     baseURL?: string;
+    temperature?: number;
     defaultQuery?: { 'api-version': string };
     defaultHeaders?: { 'api-key': string };
   } = {
@@ -32,6 +34,10 @@ function getOpenAIConfig() {
       config.defaultQuery = { 'api-version': apiVersion };
       config.defaultHeaders = { 'api-key': apiKey };
     }
+  }
+
+  if (temperature) {
+    config.temperature = temperature;
   }
 
   return config;
