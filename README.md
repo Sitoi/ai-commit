@@ -55,7 +55,7 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 
 ### ⚙️ Configuration
 
-> **Note** Version >= 0.0.5 Don't need to configure `EMOJI_ENABLED` and `FULL_GITMOJI_SPEC`, Default Prompt is [prompt/without_gitmoji.md](./prompt/without_gitmoji.md), If don't need to use `Gitmoji`. Please set `SYSTEM_PROMPT` to your custom prompt, please refer to [prompt/without_gitmoji.md](./prompt/without_gitmoji.md).
+> **Note** Version >= 0.0.5 Don't need to configure `EMOJI_ENABLED` and `FULL_GITMOJI_SPEC`, Default Prompt is [prompt/with_gitmoji.md](./prompt/with_gitmoji.md), If don't need to use `Gitmoji`. Please set `SYSTEM_PROMPT` to your custom prompt, please refer to [prompt/without_gitmoji.md](./prompt/without_gitmoji.md).
 
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
