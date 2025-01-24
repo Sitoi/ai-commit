@@ -10,6 +10,7 @@ import { createOpenAIApi } from './openai-utils';
  * @property {string} AZURE_API_VERSION - The version of Azure API.
  * @property {string} AI_COMMIT_LANGUAGE - The language for AI commit messages.
  * @property {string} SYSTEM_PROMPT - The system prompt for generating commit messages.
+ * @property {string} OPENAI_TEMPERATURE - The temperature setting for OpenAI API.
  */
 export enum ConfigKeys {
   OPENAI_API_KEY = 'OPENAI_API_KEY',
@@ -17,7 +18,8 @@ export enum ConfigKeys {
   OPENAI_MODEL = 'OPENAI_MODEL',
   AZURE_API_VERSION = 'AZURE_API_VERSION',
   AI_COMMIT_LANGUAGE = 'AI_COMMIT_LANGUAGE',
-  SYSTEM_PROMPT = 'AI_COMMIT_SYSTEM_PROMPT'
+  SYSTEM_PROMPT = 'AI_COMMIT_SYSTEM_PROMPT',
+  OPENAI_TEMPERATURE = 'OPENAI_TEMPERATURE'
 }
 
 /**
@@ -34,9 +36,9 @@ export class ConfigurationManager {
     this.disposable = vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('ai-commit')) {
         this.configCache.clear();
-        
-        if (event.affectsConfiguration('ai-commit.OPENAI_BASE_URL') || 
-            event.affectsConfiguration('ai-commit.OPENAI_API_KEY')) {
+
+        if (event.affectsConfiguration('ai-commit.OPENAI_BASE_URL') ||
+          event.affectsConfiguration('ai-commit.OPENAI_API_KEY')) {
           this.updateModelList();
         }
       }
@@ -69,14 +71,14 @@ export class ConfigurationManager {
     try {
       const openai = createOpenAIApi();
       const models = await openai.models.list();
-      
+
       // Save available models to extension state
       await this.context.globalState.update('availableModels', models.data.map(model => model.id));
-      
+
       // Get the current selected model
       const config = vscode.workspace.getConfiguration('ai-commit');
       const currentModel = config.get<string>('OPENAI_MODEL');
-      
+
       // If the current selected model is not in the available list, set it to the default value
       const availableModels = models.data.map(model => model.id);
       if (!availableModels.includes(currentModel)) {

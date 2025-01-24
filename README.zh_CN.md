@@ -67,6 +67,7 @@
 | AZURE_API_VERSION  | string |  None  |  否  |                                   AZURE_API_VERSION                                    |
 | AI_COMMIT_LANGUAGE | string |   en   |  是  |                                     支持 19 种语言                                     |
 | SYSTEM_PROMPT      | string |  None  |  否  |                                    自定义系统提示词                                    |
+| OPENAI_TEMPERATURE | number |  0.7   |  否  | 控制输出的随机性。范围：0-2。较低的值：更加集中，较高的值：更有创造性 |
 
 ## ⌨️ 本地开发
 

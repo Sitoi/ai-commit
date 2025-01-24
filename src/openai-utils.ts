@@ -53,13 +53,14 @@ export function createOpenAIApi() {
  */
 export async function ChatGPTAPI(messages: ChatCompletionMessageParam[]) {
   const openai = createOpenAIApi();
-  const model = ConfigurationManager.getInstance().getConfig<string>(
-    ConfigKeys.OPENAI_MODEL
-  );
+  const configManager = ConfigurationManager.getInstance();
+  const model = configManager.getConfig<string>(ConfigKeys.OPENAI_MODEL);
+  const temperature = configManager.getConfig<number>(ConfigKeys.OPENAI_TEMPERATURE, 0.7);
 
   const completion = await openai.chat.completions.create({
     model,
-    messages: messages as ChatCompletionMessageParam[]
+    messages: messages as ChatCompletionMessageParam[],
+    temperature
   });
 
   return completion.choices[0]!.message?.content;

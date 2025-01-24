@@ -67,6 +67,7 @@ In the VSCode settings, locate the "ai-commit" configuration options and configu
 | AZURE_API_VERSION  | string |  None   |    No    |                                            AZURE_API_VERSION                                            |
 | AI_COMMIT_LANGUAGE | string |   en    |   Yes    |                                          Supports 19 languages                                          |
 | SYSTEM_PROMPT      | string |  None   |    No    |                                          Custom system prompt                                           |
+| OPENAI_TEMPERATURE | number |   0.7   |    No    | Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative |
 
 ## ⌨️ Local Development
 
