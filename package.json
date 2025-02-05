@@ -117,6 +117,13 @@
           "type": "string",
           "default": "",
           "description": "Custom system prompt for generating commit messages"
+        },
+        "ai-commit.OPENAI_TEMPERATURE": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "OpenAI temperature setting (0-2). Higher values make output more random, lower values more deterministic."
         }
       },
       "title": "AI Commit"
