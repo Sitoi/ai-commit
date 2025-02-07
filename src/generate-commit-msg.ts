@@ -6,6 +6,7 @@ import { getDiffStaged } from './git-utils';
 import { ChatGPTAPI } from './openai-utils';
 import { getMainCommitPrompt } from './prompts';
 import { ProgressHandler } from './utils';
+import { GeminiAPI } from './gemini-utils';
 
 /**
  * Generates a chat completion prompt for the commit message based on the provided diff.
@@ -71,11 +72,8 @@ export async function generateCommitMsg(arg) {
     try {
       const configManager = ConfigurationManager.getInstance();
       const repo = await getRepo(arg);
-      const apiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
 
-      if (!apiKey) {
-        throw new Error('OpenAI API Key not configured');
-      }
+      const aiProvider = configManager.getConfig<string>(ConfigKeys.AI_PROVIDER, 'openai');
 
       progress.report({ message: 'Getting staged changes...' });
       const { diff, error } = await getDiffStaged(repo);
@@ -111,9 +109,23 @@ export async function generateCommitMsg(arg) {
           : 'Generating commit message...'
       });
       try {
-        const commitMessage = await ChatGPTAPI(
-          messages as ChatCompletionMessageParam[]
-        );
+        let commitMessage: string | undefined;
+
+        if (aiProvider === 'gemini') {
+          const geminiApiKey = configManager.getConfig<string>(ConfigKeys.GEMINI_API_KEY);
+          if (!geminiApiKey) {
+            throw new Error('Gemini API Key not configured');
+          }
+          commitMessage = await GeminiAPI(messages);
+        } else {
+          const openaiApiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
+          if (!openaiApiKey) {
+            throw new Error('OpenAI API Key not configured');
+          }
+          commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
+        }
+
+
         if (commitMessage) {
           scmInputBox.value = commitMessage;
         } else {
@@ -122,10 +134,10 @@ export async function generateCommitMsg(arg) {
       } catch (err) {
         let errorMessage = 'An unexpected error occurred';
 
-        if (err.response?.status) {
+        if (aiProvider === 'openai' && err.response?.status) {
           switch (err.response.status) {
             case 401:
-              errorMessage = 'Invalid API key or unauthorized access';
+              errorMessage = 'Invalid OpenAI API key or unauthorized access';
               break;
             case 429:
               errorMessage = 'Rate limit exceeded. Please try again later';
@@ -137,6 +149,8 @@ export async function generateCommitMsg(arg) {
               errorMessage = 'OpenAI service is temporarily unavailable';
               break;
           }
+        } else if (aiProvider === 'gemini') {
+          errorMessage = `Gemini API error: ${err.message}`;
         }
 
         throw new Error(errorMessage);
