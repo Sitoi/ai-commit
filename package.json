@@ -148,8 +148,8 @@
           "type": "number",
           "default": 0.7,
           "minimum": 0,
-          "maximum": 1,
-          "description": "Gemini temperature setting (0-1). Controls randomness."
+          "maximum": 2,
+          "description": "Gemini temperature setting (0-2). Controls randomness."
         }
       },
       "title": "AI Commit"
