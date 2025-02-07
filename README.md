@@ -27,7 +27,7 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 
 ## ✨ Features
 
-- 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API.
+- 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API and Gemini API.
 - 🗺️ Support multi-language commit messages.
 - 😜 Support adding Gitmoji.
 - 🛠️ Support custom system prompt.
@@ -59,15 +59,19 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
-| Configuration      |  Type  | Default | Required |                                                  Notes                                                  |
-| :----------------- | :----: | :-----: | :------: | :-----------------------------------------------------------------------------------------------------: |
-| OPENAI_API_KEY     | string |  None   |   Yes    |                      [OpenAI token](https://platform.openai.com/account/api-keys)                       |
-| OPENAI_BASE_URL    | string |  None   |    No    |           If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}           |
-| OPENAI_MODEL       | string | gpt-4o  |   Yes    | OpenAI MODEL,you can select a model from the list by running the `Show Available OpenAI Models` command |
-| AZURE_API_VERSION  | string |  None   |    No    |                                            AZURE_API_VERSION                                            |
-| AI_COMMIT_LANGUAGE | string |   en    |   Yes    |                                          Supports 19 languages                                          |
-| SYSTEM_PROMPT      | string |  None   |    No    |                                          Custom system prompt                                           |
-| OPENAI_TEMPERATURE | number |   0.7   |    No    | Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative |
+| Configuration      |  Type  |       Default        | Required |                                                       Notes                                                        |
+| :----------------- | :----: | :------------------: | :------: | :----------------------------------------------------------------------------------------------------------------: |
+| AI_PROVIDER        | string |        openai        |   Yes    |                                     Select AI Provider: `openai` or `gemini`.                                      |
+| OPENAI_API_KEY     | string |         None         |   Yes    |    Required when `AI Provider` is set to `OpenAI`. [OpenAI token](https://platform.openai.com/account/api-keys)    |
+| OPENAI_BASE_URL    | string |         None         |    No    |                If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}                 |
+| OPENAI_MODEL       | string |        gpt-4o        |   Yes    |      OpenAI MODEL, you can select a model from the list by running the `Show Available OpenAI Models` command      |
+| AZURE_API_VERSION  | string |         None         |    No    |                                                 AZURE_API_VERSION                                                  |
+| OPENAI_TEMPERATURE | number |         0.7          |    No    |      Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative       |
+| GEMINI_API_KEY     | string |         None         |   Yes    |     Required when `AI Provider` is set to `Gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)     |
+| GEMINI_MODEL       | string | gemini-2.0-flash-001 |   Yes    |                       Gemini MODEL.  Currently, model selection is limited to configuration.                       |
+| GEMINI_TEMPERATURE | number |         0.7          |    No    | Controls randomness in the output. Range: 0-2 for Gemini. Lower values: more focused, Higher values: more creative |
+| AI_COMMIT_LANGUAGE | string |          en          |   Yes    |                                               Supports 19 languages                                                |
+| SYSTEM_PROMPT      | string |         None         |    No    |                                               Custom system prompt                                                 |
 
 ## ⌨️ Local Development
 
