@@ -169,7 +169,7 @@
     "compile": "webpack",
     "compile-tests": "tsc -p . --outDir out",
     "lint": "eslint src --ext ts",
-    "package": "npm vsce package --no-dependencies",
+    "package": "vsce package --no-dependencies",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "publish": "vsce publish --no-dependencies",
     "test": "node ./out/test/runTest.js",
