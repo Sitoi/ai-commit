@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { createOpenAIApi } from './openai-utils';
+import { createGeminiAPIClient } from './gemini-utils';
 
 /**
  * Configuration keys used in the AI commit extension.
@@ -19,7 +20,12 @@ export enum ConfigKeys {
   AZURE_API_VERSION = 'AZURE_API_VERSION',
   AI_COMMIT_LANGUAGE = 'AI_COMMIT_LANGUAGE',
   SYSTEM_PROMPT = 'AI_COMMIT_SYSTEM_PROMPT',
-  OPENAI_TEMPERATURE = 'OPENAI_TEMPERATURE'
+  OPENAI_TEMPERATURE = 'OPENAI_TEMPERATURE',
+  
+  GEMINI_API_KEY = 'GEMINI_API_KEY',
+  GEMINI_MODEL = 'GEMINI_MODEL',
+  GEMINI_TEMPERATURE = 'GEMINI_TEMPERATURE',
+  AI_PROVIDER = 'AI_PROVIDER',
 }
 
 /**
@@ -39,7 +45,7 @@ export class ConfigurationManager {
 
         if (event.affectsConfiguration('ai-commit.OPENAI_BASE_URL') ||
           event.affectsConfiguration('ai-commit.OPENAI_API_KEY')) {
-          this.updateModelList();
+          this.updateOpenAIModelList();
         }
       }
     });
@@ -67,13 +73,13 @@ export class ConfigurationManager {
   /**
    * Updates the list of available OpenAI models.
    */
-  private async updateModelList() {
+  private async updateOpenAIModelList() {
     try {
       const openai = createOpenAIApi();
       const models = await openai.models.list();
 
       // Save available models to extension state
-      await this.context.globalState.update('availableModels', models.data.map(model => model.id));
+      await this.context.globalState.update('availableOpenAIModels', models.data.map(model => model.id));
 
       // Get the current selected model
       const config = vscode.workspace.getConfiguration('ai-commit');
@@ -91,12 +97,60 @@ export class ConfigurationManager {
 
   /**
    * Retrieves the list of available OpenAI models.
-   * @returns {Promise<string[]>} The list of available models.
+   * @returns {Promise<string[]>} The list of available OpenAI models.
    */
-  public async getAvailableModels(): Promise<string[]> {
-    if (!this.context.globalState.get<string[]>('availableModels')) {
-      await this.updateModelList();
+  public async getAvailableOpenAIModels(): Promise<string[]> {
+    if (!this.context.globalState.get<string[]>('availableOpenAIModels')) {
+      await this.updateOpenAIModelList();
     }
-    return this.context.globalState.get<string[]>('availableModels', []);
+    return this.context.globalState.get<string[]>('availableOpenAIModels', []);
   }
+
+  /**
+   * @deprecated
+   * This function is deprecated because Gemini API does not currently support listing models via API.
+   * We have to wait for this feature to be updated to the gemini library at some point, or find another way.
+   * 
+   * Updates the list of available Gemini models.
+   */
+  /*
+  private async updateGeminiModelList() {
+    try {
+      const geminiAPI = createGeminiAPIClient();
+      const modelListResponse = await geminiAPI.listModels(); // Gemini API does not currently have a function to get a list of models
+      const availableModels = modelListResponse.models.map(model => model.name);
+
+      // Save available Gemini models to extension global state
+      await this.context.globalState.update('availableGeminiModels', availableModels);
+
+      // Get the currently selected Gemini model
+      const config = vscode.workspace.getConfiguration('ai-commit');
+      const currentModel = config.get<string>('GEMINI_MODEL');
+
+      // If the current selected Gemini model is not in the available list, set it to a default value
+      if (currentModel && !availableModels.includes(currentModel)) {
+        await config.update('GEMINI_MODEL', 'gemini-2.0-flash-001', vscode.ConfigurationTarget.Global);
+      }
+
+    } catch (error) {
+      console.error('Failed to fetch Gemini models:', error);
+    }
+  }
+  */
+
+  /**
+   * @deprecated
+   * This function is deprecated because Gemini API does not currently support listing models via API.
+   * 
+   * Retrieves the list of available Gemini models.
+   * @returns {Promise<string[]>} The list of available Gemini models.
+   */
+  /*
+  public async getAvailableGeminiModels(): Promise<string[]> {
+    if (!this.context.globalState.get<string[]>('availableGeminiModels')) {
+      await this.updateGeminiModelList();
+    }
+    return this.context.globalState.get<string[]>('availableGeminiModels', []);
+  }
+  */
 }

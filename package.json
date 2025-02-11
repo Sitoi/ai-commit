@@ -124,6 +124,32 @@
           "minimum": 0,
           "maximum": 2,
           "description": "OpenAI temperature setting (0-2). Higher values make output more random, lower values more deterministic."
+        },
+        "ai-commit.AI_PROVIDER": {
+          "type": "string",
+          "default": "openai",
+          "description": "AI Provider to use (OpenAI or Gemini)",
+          "enum": [
+            "openai",
+            "gemini"
+          ]
+        },
+        "ai-commit.GEMINI_API_KEY": {
+          "type": "string",
+          "default": "",
+          "description": "Gemini API Key"
+        },
+        "ai-commit.GEMINI_MODEL": {
+          "type": "string",
+          "default": "gemini-2.0-flash-001",
+          "description": "Gemini Model to use"
+        },
+        "ai-commit.GEMINI_TEMPERATURE": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Gemini temperature setting (0-2). Controls randomness."
         }
       },
       "title": "AI Commit"
@@ -143,9 +169,9 @@
     "compile": "webpack",
     "compile-tests": "tsc -p . --outDir out",
     "lint": "eslint src --ext ts",
-    "package": "npm vsce package --no-dependencies",
+    "package": "vsce package --no-dependencies",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "publish": "npm vsce publish --no-dependencies",
+    "publish": "vsce publish --no-dependencies",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "npm run build",
     "watch": "webpack --watch",
@@ -169,9 +195,10 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "fs-extra": "^11.0.4",
     "openai": "^4.14.2",
-    "simple-git": "^3.17.0",
-    "fs-extra": "^11.0.4"
+    "simple-git": "^3.17.0"
   },
   "resolutions": {
     "@types/node": "16.x"
