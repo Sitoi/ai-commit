@@ -6,7 +6,7 @@
 
 <h1>AI Commit</h1>
 
-Use Azure/OpenAI API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.
+Use OpenAI / Azure OpenAI / DeepSeek / Gemini API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.
 
 **English** · [简体中文](./README.zh_CN.md) · [Report Bug][github-issues-link] · [Request Feature][github-issues-link]
 
@@ -27,7 +27,7 @@ Use Azure/OpenAI API to review Git changes, generate conventional commit message
 
 ## ✨ Features
 
-- 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API and Gemini API.
+- 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API / DeepSeek / Gemini API.
 - 🗺️ Support multi-language commit messages.
 - 😜 Support adding Gitmoji.
 - 🛠️ Support custom system prompt.
@@ -68,10 +68,10 @@ In the VSCode settings, locate the "ai-commit" configuration options and configu
 | AZURE_API_VERSION  | string |         None         |    No    |                                                 AZURE_API_VERSION                                                  |
 | OPENAI_TEMPERATURE | number |         0.7          |    No    |      Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative       |
 | GEMINI_API_KEY     | string |         None         |   Yes    |     Required when `AI Provider` is set to `Gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)     |
-| GEMINI_MODEL       | string | gemini-2.0-flash-001 |   Yes    |                       Gemini MODEL.  Currently, model selection is limited to configuration.                       |
+| GEMINI_MODEL       | string | gemini-2.0-flash-001 |   Yes    |                       Gemini MODEL. Currently, model selection is limited to configuration.                        |
 | GEMINI_TEMPERATURE | number |         0.7          |    No    | Controls randomness in the output. Range: 0-2 for Gemini. Lower values: more focused, Higher values: more creative |
 | AI_COMMIT_LANGUAGE | string |          en          |   Yes    |                                               Supports 19 languages                                                |
-| SYSTEM_PROMPT      | string |         None         |    No    |                                               Custom system prompt                                                 |
+| SYSTEM_PROMPT      | string |         None         |    No    |                                                Custom system prompt                                                |
 
 ## ⌨️ Local Development
 
