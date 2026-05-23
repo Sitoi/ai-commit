@@ -1,0 +1,13 @@
+{
+  "extension.displayName": "AI Commit",
+  "extension.description": "基于 git staged diff，使用 OpenAI / Claude / Gemini / 本地 Ollama 以及 OpenAI 兼容厂商（DeepSeek、智谱、通义、Groq、OpenRouter）生成符合 Conventional Commits 规范的提交信息。",
+  "command.aiCommit": "AI Commit",
+  "command.showAvailableModels": "AI Commit: 显示可用 OpenAI 模型",
+  "command.setApiKey": "AI Commit: 设置 API Key（存入 SecretStorage）",
+  "command.useOpenAIPreset": "AI Commit: 使用 OpenAI 兼容预设（DeepSeek/智谱/通义/Groq/OpenRouter）",
+  "config.aiProvider.description": "要使用的 AI Provider。",
+  "config.streamingEnabled.description": "把生成的提交信息流式写入 SCM 输入框（逐字符显示）。",
+  "config.diffMaxTokens.description": "送给模型的 diff 的最大约略 token 数。超出会按 token 预算自动截断。",
+  "config.diffExcludePatterns.description": "在内置默认规则之外，额外排除匹配的文件路径（正则）。",
+  "config.diffIncludeDefaultExcludes.description": "启用内置默认排除规则（lock 文件、dist/、build/、.min 等）。"
+}

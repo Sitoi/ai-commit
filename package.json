@@ -1,10 +1,10 @@
 {
   "name": "ai-commit",
-  "displayName": "AI Commit",
-  "description": "Use OpenAI/Gemini/Claude/Azure API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
   "version": "0.1.2",
   "engines": {
-    "node": ">=16",
+    "node": ">=18",
     "vscode": "^1.77.0"
   },
   "categories": [
@@ -30,7 +30,7 @@
   "repository": "https://github.com/sitoi/ai-commit",
   "icon": "images/logo.png",
   "activationEvents": [
-    "onCommand:ai-commit"
+    "onStartupFinished"
   ],
   "contributes": {
     "commands": [
@@ -40,11 +40,19 @@
           "dark": "images/icon.svg",
           "light": "images/icon.svg"
         },
-        "title": "AI Commit"
+        "title": "%command.aiCommit%"
       },
       {
         "command": "ai-commit.showAvailableModels",
-        "title": "Show Available OpenAI Models"
+        "title": "%command.showAvailableModels%"
+      },
+      {
+        "command": "ai-commit.setApiKey",
+        "title": "%command.setApiKey%"
+      },
+      {
+        "command": "ai-commit.useOpenAIPreset",
+        "title": "%command.useOpenAIPreset%"
       }
     ],
     "configuration": {
@@ -103,7 +111,7 @@
         },
         "ai-commit.OPENAI_API_KEY": {
           "default": "",
-          "description": "OpenAI API Key",
+          "description": "OpenAI API Key (deprecated — prefer the 'AI Commit: Set API Key' command which stores in SecretStorage)",
           "type": "string"
         },
         "ai-commit.OPENAI_BASE_URL": {
@@ -132,7 +140,10 @@
           "type": "string",
           "default": "completion",
           "description": "Choose OpenAI API: Chat Completions API or Responses API",
-          "enum": ["completion", "response"],
+          "enum": [
+            "completion",
+            "response"
+          ],
           "enumDescriptions": [
             "Chat Completions API (default)",
             "Responses API (supports reasoning models)"
@@ -142,7 +153,12 @@
           "type": "string",
           "default": "medium",
           "description": "Reasoning effort for the Responses API (only applies when OPENAI_API_TYPE is 'response')",
-          "enum": ["minimal", "low", "medium", "high"],
+          "enum": [
+            "minimal",
+            "low",
+            "medium",
+            "high"
+          ],
           "enumDescriptions": [
             "Minimal reasoning effort",
             "Low reasoning effort",
@@ -154,7 +170,11 @@
           "type": "string",
           "default": "medium",
           "description": "Output verbosity for the Responses API — controls max output tokens: low (~1000), medium (~4000), high (~16000)",
-          "enum": ["low", "medium", "high"],
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
           "enumDescriptions": [
             "Low verbosity (~1000 tokens)",
             "Medium verbosity (~4000 tokens, default)",
@@ -164,17 +184,24 @@
         "ai-commit.AI_PROVIDER": {
           "type": "string",
           "default": "openai",
-          "description": "AI Provider to use (OpenAI, Gemini, or Claude)",
+          "description": "AI Provider to use",
           "enum": [
             "openai",
             "gemini",
-            "claude"
+            "claude",
+            "ollama"
+          ],
+          "enumDescriptions": [
+            "OpenAI (also for Azure / DeepSeek / Zhipu / Qwen / Groq / OpenRouter via OPENAI_BASE_URL)",
+            "Google Gemini",
+            "Anthropic Claude",
+            "Local Ollama runtime (http://localhost:11434/v1 by default)"
           ]
         },
         "ai-commit.GEMINI_API_KEY": {
           "type": "string",
           "default": "",
-          "description": "Gemini API Key"
+          "description": "Gemini API Key (deprecated — prefer 'AI Commit: Set API Key' which stores in SecretStorage)"
         },
         "ai-commit.GEMINI_MODEL": {
           "type": "string",
@@ -191,7 +218,7 @@
         "ai-commit.CLAUDE_API_KEY": {
           "type": "string",
           "default": "",
-          "description": "Claude API Key (optional). Leave empty to use Claude CLI (authenticated via 'claude setup-token'), or provide an Anthropic API key for direct API access."
+          "description": "Claude API Key (deprecated — prefer 'AI Commit: Set API Key' which stores in SecretStorage)"
         },
         "ai-commit.CLAUDE_MODEL": {
           "type": "string",
@@ -204,6 +231,47 @@
           "minimum": 0,
           "maximum": 1,
           "description": "Claude temperature setting (0-1). Controls randomness."
+        },
+        "ai-commit.OLLAMA_BASE_URL": {
+          "type": "string",
+          "default": "http://localhost:11434/v1",
+          "description": "Base URL for the local Ollama OpenAI-compatible API"
+        },
+        "ai-commit.OLLAMA_MODEL": {
+          "type": "string",
+          "default": "llama3.2",
+          "description": "Ollama model name (e.g. llama3.2, qwen2.5, mistral)"
+        },
+        "ai-commit.OLLAMA_TEMPERATURE": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Ollama temperature setting (0-2)"
+        },
+        "ai-commit.DIFF_MAX_TOKENS": {
+          "type": "number",
+          "default": 8000,
+          "minimum": 500,
+          "description": "Maximum approximate tokens of diff to send to the model. Larger diffs are truncated."
+        },
+        "ai-commit.DIFF_EXCLUDE_PATTERNS": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional regex patterns for file paths to exclude from the diff (applied on top of built-in defaults)."
+        },
+        "ai-commit.DIFF_INCLUDE_DEFAULT_EXCLUDES": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to use built-in exclude patterns for lock files, dist/, build/, .min files, etc."
+        },
+        "ai-commit.STREAMING_ENABLED": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stream the generated commit message into the SCM input box character-by-character."
         }
       },
       "title": "AI Commit"
@@ -221,42 +289,36 @@
   "scripts": {
     "build": "webpack --mode production --devtool hidden-source-map",
     "compile": "webpack",
-    "compile-tests": "tsc -p . --outDir out",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src test --ext ts",
     "package": "vsce package --no-dependencies",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "publish": "vsce publish --no-dependencies",
-    "test": "node ./out/test/runTest.js",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run test:unit",
     "vscode:prepublish": "npm run build",
-    "watch": "webpack --watch",
-    "watch-tests": "tsc -p . -w --outDir out"
+    "watch": "webpack --watch"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
-    "@types/glob": "^9.0.0",
-    "@types/mocha": "^10.0.10",
+    "@eslint/js": "^10.0.1",
     "@types/node": "25.x",
     "@types/vscode": "^1.77.0",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",
-    "@vscode/test-electron": "^2.5.2",
+    "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^10.3.0",
-    "glob": "^13.0.6",
-    "mocha": "^11.7.5",
     "ts-loader": "^9.5.7",
     "typescript": "^6.0.3",
+    "vitest": "^4.1.7",
     "webpack": "^5.106.2",
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.93.0",
     "@google/generative-ai": "^0.24.1",
-    "fs-extra": "^11.3.4",
     "openai": "^6.36.0",
     "simple-git": "^3.36.0"
-  },
-  "resolutions": {
-    "@types/node": "16.x"
   },
   "license": "MIT"
 }

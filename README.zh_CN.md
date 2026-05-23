@@ -27,58 +27,80 @@
 
 ## ✨ 特性
 
-- 🤯 支持使用 OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API 根据 git diffs 自动生成提交信息
-- 🧠 支持 OpenAI Responses API，可配置推理强度（reasoning effort）和输出详细程度
-- 🗺️ 支持多语言提交信息
-- 😜 支持添加 Gitmoji
-- 🛠️ 支持自定义系统提示词
-- 📝 支持 Conventional Commits 规范
+- 🔌 **可插拔的 Provider 架构** —— 内置 OpenAI（Chat Completions 与 Responses API）、Anthropic Claude、Google Gemini、本地 **Ollama**
+- 🚀 **OpenAI 兼容预设** —— 一键切换到 DeepSeek / 智谱 GLM / 通义 (DashScope) / Groq / OpenRouter，命令 `AI Commit: Use OpenAI-Compatible Preset`
+- 📡 **流式输出** —— 提交信息以"打字机"形式逐字写入 SCM 输入框
+- ✋ **真正的取消** —— 点击进度通知上的取消按钮会通过 `AbortController` 立即中止 API 请求
+- 🔐 **SecretStorage** —— API key 存入 VSCode 系统密钥库，不再写在 `settings.json`，旧设置启动时自动迁移
+- 🧹 **智能 diff** —— 默认排除 lock 文件、`dist/`、`build/`、`.min.*` 等噪声；超大 diff 自动按 token 预算截断
+- 🧠 **Responses API** —— 可配置 reasoning effort 与输出 verbosity
+- 🌐 **19 种语言**的提交信息
+- 😜 **Gitmoji** + Conventional Commits + 自定义系统提示词
 
 ## 📦 安装
 
-1. 在 VSCode 中搜索 "AI Commit" 并点击 "Install" 按钮。
-2. 从 [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit) 直接安装。
+1. 在 VSCode 中搜索 "AI Commit" 并点击 "Install"。
+2. 或从 [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit) 安装。
 
-> **Note**\
-> 请确保 Node.js 版本 >= 16
+> **Note**：需要 Node.js >= 18，VS Code >= 1.77。
 
 ## 🤯 使用
 
-1. 确保您已经安装并启用了 `AI Commit` 扩展。
-2. 在 `VSCode` 设置中，找到 "ai-commit" 配置项，并根据需要进行配置：
-3. 在项目中进行更改并将更改添加到暂存区 (git add)。
-4. (可选) 如果您想为提交消息提供额外的上下文，请在点击 AI Commit 按钮之前，在源代码管理面板的消息输入框中输入上下文。
-5. 在 `Source Control` 面板的提交消息输入框旁边，单击 `AI Commit` 图标按钮。点击后，扩展将生成 Commit 信息（如果提供了额外上下文，将会考虑在内）并填充到输入框中。
-6. 审核生成的 Commit 信息，如果满意，请提交更改。
+1. 在命令面板运行 `AI Commit: Set API Key` 选择 Provider 输入密钥，密钥会存入 SecretStorage。
+2. （可选）对于使用 OpenAI 协议的国产 / 第三方模型，运行 `AI Commit: Use OpenAI-Compatible Preset` 一键配置 baseURL + 推荐模型。
+3. 暂存改动 (`git add ...`)。
+4. 点击源代码管理面板标题栏的 **AI Commit** 图标按钮。
+5. 观察提交信息流式写入输入框，按需修改后提交。
 
-> **Note**\
-> 如果超过最大 token 长度请分批将代码添加到暂存区。
+## 🛠️ 命令
+
+| 命令 | 用途 |
+| --- | --- |
+| `AI Commit`（SCM 标题按钮） | 根据暂存改动生成提交信息 |
+| `AI Commit: Set API Key` | 把 OpenAI / Claude / Gemini 的密钥写入 SecretStorage |
+| `AI Commit: Use OpenAI-Compatible Preset` | 一键配置 DeepSeek / 智谱 / 通义 / Groq / OpenRouter |
+| `AI Commit: Show Available OpenAI Models` | 从 `/v1/models` 拉取并选择模型 |
+
+## 🧪 Diff 处理
+
+| 内置排除 | 模式 |
+| --- | --- |
+| Lock 文件 | `package-lock.json`、`pnpm-lock.yaml`、`yarn.lock`、`Cargo.lock`、`Pipfile.lock`、`poetry.lock`、`composer.lock`、`Gemfile.lock`、`go.sum`、`bun.lockb` |
+| 生成产物 | `dist/`、`build/`、`out/`、`.next/`、`node_modules/` |
+| 压缩文件 | `*.min.{js,css,map}` |
+
+可以通过 `ai-commit.DIFF_EXCLUDE_PATTERNS`（追加正则）和 `ai-commit.DIFF_INCLUDE_DEFAULT_EXCLUDES`（关掉默认）来定制。Token 预算由 `ai-commit.DIFF_MAX_TOKENS` 控制（默认 `8000`）。
 
 ### ⚙️ 配置
 
-> **Note** Version >= 0.0.5 不需要配置 `EMOJI_ENABLED` 和 `FULL_GITMOJI_SPEC`，默认提示词为 [prompt/without_gitmoji.md](./prompt/with_gitmoji.md)，如果不需要使用 `Gitmoji`，请将 `SYSTEM_PROMPT` 设置为您的自定义提示词, 请参考 [prompt/without_gitmoji.md](./prompt/without_gitmoji.md)。
+> 默认提示词已内置 Gitmoji；若要关闭 Gitmoji 或自定义输出格式，把自定义内容贴到 `AI_COMMIT_SYSTEM_PROMPT`（参考模板见 [prompt/with_gitmoji.md](./prompt/with_gitmoji.md) 和 [prompt/without_gitmoji.md](./prompt/without_gitmoji.md)）。
 
-在 `VSCode` 设置中，找到 "ai-commit" 配置项，并根据需要进行配置
-
-| 配置                    |  类型  |            默认            | 必要 |                                                      备注                                                       |
-| :---------------------- | :----: | :------------------------: | :--: | :-------------------------------------------------------------------------------------------------------------: |
-| AI_PROVIDER             | string |           openai           | Yes  |                                 选择 AI 提供商：`openai`、`gemini` 或 `claude`                                  |
-| OPENAI_API_KEY          | string |            None            |  是  |                           [OpenAI 令牌](https://platform.openai.com/account/api-keys)                           |
-| OPENAI_BASE_URL         | string |            None            |  否  |             如果使用 Azure，填入：`https://{resource}.openai.azure.com/openai/deployments/{model}`              |
-| OPENAI_MODEL            | string |           gpt-4o           |  是  |                     OpenAI 模型，可通过运行 `Show Available OpenAI Models` 命令从列表中选择                     |
-| AZURE_API_VERSION       | string |            None            |  否  |                                                Azure API 版本号                                                 |
-| OPENAI_TEMPERATURE      | number |            0.7             |  否  |                控制输出随机性。范围：0–2。较低：更集中，较高：更有创造性（仅 Chat Completions）                 |
-| OPENAI_API_TYPE         | string |         completion         |  否  |                  选择 API 类型：`completion`（Chat Completions）或 `response`（Responses API）                  |
-| OPENAI_REASONING_EFFORT | string |           medium           |  否  |     Responses API 推理强度：`minimal`、`low`、`medium`、`high`。仅在 `OPENAI_API_TYPE` 为 `response` 时生效     |
-| OPENAI_TEXT_VERBOSITY   | string |           medium           |  否  |      Responses API 输出详细程度：`low`（~1000 tokens）、`medium`（~4000 tokens）、`high`（~16000 tokens）       |
-| GEMINI_API_KEY          | string |            None            |  是  |          `AI_PROVIDER` 为 `gemini` 时必填。[Gemini API key](https://makersuite.google.com/app/apikey)           |
-| GEMINI_MODEL            | string |    gemini-2.0-flash-001    |  是  |                                                Gemini 使用的模型                                                |
-| GEMINI_TEMPERATURE      | number |            0.7             |  否  |                            控制输出随机性。范围：0–2。较低：更集中，较高：更有创造性                            |
-| CLAUDE_API_KEY          | string |            None            |  否  | Anthropic API 密钥。留空可使用 Claude CLI（通过 `claude setup-token` 认证）。`AI_PROVIDER` 为 `claude` 时需配置 |
-| CLAUDE_MODEL            | string | claude-sonnet-4-5-20250929 |  否  |                                                Claude 使用的模型                                                |
-| CLAUDE_TEMPERATURE      | number |            0.7             |  否  |                                            控制输出随机性。范围：0–1                                            |
-| AI_COMMIT_LANGUAGE      | string |          English           |  是  |                                                 支持 19 种语言                                                  |
-| SYSTEM_PROMPT           | string |            None            |  否  |                                                自定义系统提示词                                                 |
+| 配置项                              | 类型      | 默认值                        | 备注 |
+| ----------------------------------- | --------- | ----------------------------- | ---- |
+| `AI_PROVIDER`                       | string    | `openai`                      | `openai` / `gemini` / `claude` / `ollama` |
+| `OPENAI_API_KEY`                    | string    | `""`                          | 已废弃 —— 请用 `AI Commit: Set API Key`（SecretStorage） |
+| `OPENAI_BASE_URL`                   | string    | `""`                          | Azure 或 OpenAI 兼容厂商（DeepSeek / 智谱 / 通义 / Groq / OpenRouter）。建议用预设命令一键设置 |
+| `OPENAI_MODEL`                      | string    | `gpt-4o`                      | 运行 `AI Commit: Show Available OpenAI Models` 可从列表选择 |
+| `AZURE_API_VERSION`                 | string    | `""`                          | Azure API 版本 |
+| `OPENAI_TEMPERATURE`                | number    | `0.7`                         | 0–2；仅 Chat Completions |
+| `OPENAI_API_TYPE`                   | enum      | `completion`                  | `completion` 或 `response`（Responses API） |
+| `OPENAI_REASONING_EFFORT`           | enum      | `medium`                      | `minimal`/`low`/`medium`/`high`（仅 Responses API） |
+| `OPENAI_TEXT_VERBOSITY`             | enum      | `medium`                      | 映射到最大输出 tokens（仅 Responses API） |
+| `GEMINI_API_KEY`                    | string    | `""`                          | 已废弃 —— 请用 `AI Commit: Set API Key` |
+| `GEMINI_MODEL`                      | string    | `gemini-2.0-flash-001`        | |
+| `GEMINI_TEMPERATURE`                | number    | `0.7`                         | 0–2 |
+| `CLAUDE_API_KEY`                    | string    | `""`                          | 已废弃 —— 请用 `AI Commit: Set API Key` |
+| `CLAUDE_MODEL`                      | string    | `claude-sonnet-4-5-20250929`  | |
+| `CLAUDE_TEMPERATURE`                | number    | `0.7`                         | 0–1 |
+| `OLLAMA_BASE_URL`                   | string    | `http://localhost:11434/v1`   | 本地 Ollama 的 OpenAI 兼容端点 |
+| `OLLAMA_MODEL`                      | string    | `llama3.2`                    | 任何已拉取的本地模型 |
+| `OLLAMA_TEMPERATURE`                | number    | `0.7`                         | 0–2 |
+| `STREAMING_ENABLED`                 | boolean   | `true`                        | 流式写入 SCM 输入框 |
+| `DIFF_MAX_TOKENS`                   | number    | `8000`                        | 送给模型的 diff 的最大约略 token 数 |
+| `DIFF_EXCLUDE_PATTERNS`             | string[]  | `[]`                          | 在内置规则之上额外排除的正则 |
+| `DIFF_INCLUDE_DEFAULT_EXCLUDES`     | boolean   | `true`                        | 启用内置默认排除列表 |
+| `AI_COMMIT_LANGUAGE`                | enum      | `English`                     | 支持 19 种语言 |
+| `AI_COMMIT_SYSTEM_PROMPT`           | string    | `""`                          | 覆盖默认系统提示词的自定义内容 |
 
 ## ⌨️ 本地开发
 
@@ -92,9 +114,21 @@
 $ git clone https://github.com/sitoi/ai-commit.git
 $ cd ai-commit
 $ npm install
+$ npm run verify    # 类型检查 + 单元测试
+$ npm run build     # webpack 生产构建
 ```
 
 在 VSCode 中打开项目文件夹。按 F5 键运行项目。会弹出一个新的 Extension Development Host 窗口，并在其中启动插件。
+
+### 跑测试
+
+```bash
+$ npm run test:unit          # vitest 单测
+$ npm run test:unit:watch    # watch 模式
+$ npm run test:coverage      # v8 覆盖率报告
+$ npm run lint               # eslint 扁平配置
+$ npm run typecheck          # 严格 tsc
+```
 
 ## 🤝 参与贡献
 
