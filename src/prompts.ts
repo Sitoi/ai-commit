@@ -1,12 +1,10 @@
 import { ConfigKeys, ConfigurationManager } from './config';
+import type { ChatMessage } from './types/messages';
 
 /**
  * Initializes the main prompt for generating commit messages.
- *
- * @param {string} language - The language to be used in the prompt.
- * @returns {Object} - The main prompt object containing role and content.
  */
-const INIT_MAIN_PROMPT = (language: string) => ({
+const INIT_MAIN_PROMPT = (language: string): ChatMessage => ({
   role: 'system',
   content:
     ConfigurationManager.getInstance().getConfig<string>(ConfigKeys.SYSTEM_PROMPT) ||
@@ -92,9 +90,9 @@ diff --git a/src/server.ts b/src/server.ts\n index ad4db42..f3b18a9 100644\n ---
 \n -const port = 7799;
 \n +const PORT = 7799;
 \n \n app.use(express.json());
-\n \n @@ -34,6 +34,6 @@\n app.use((\_, res, next) => {\n // ROUTES\n app.use(PROTECTED_ROUTER_URL, protectedRouter);
-\n \n -app.listen(port, () => {\n - console.log(\`Server listening on port \$\{port\}\`);
-\n +app.listen(process.env.PORT || PORT, () => {\n + console.log(\`Server listening on port \$\{PORT\}\`);
+\n \n @@ -34,6 +34,6 @@\n app.use((_, res, next) => {\n // ROUTES\n app.use(PROTECTED_ROUTER_URL, protectedRouter);
+\n \n -app.listen(port, () => {\n - console.log(\`Server listening on port \${port}\`);
+\n +app.listen(process.env.PORT || PORT, () => {\n + console.log(\`Server listening on port \${PORT}\`);
 \n });
 
 OUTPUT:
@@ -107,12 +105,7 @@ OUTPUT:
 Remember: All output MUST be in ${language} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
 });
 
-/**
- * Retrieves the main commit prompt.
- *
- * @returns {Promise<Array<Object>>} - A promise that resolves to an array of prompts.
- */
-export const getMainCommitPrompt = async () => {
+export const getMainCommitPrompt = async (): Promise<ChatMessage[]> => {
   const language = ConfigurationManager.getInstance().getConfig<string>(
     ConfigKeys.AI_COMMIT_LANGUAGE
   );

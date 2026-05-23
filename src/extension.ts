@@ -1,21 +1,54 @@
 import * as vscode from 'vscode';
 import { CommandManager } from './commands';
-import { ConfigKeys, ConfigurationManager } from './config';
+import { ConfigurationManager } from './config';
+import { setSecretsManager } from './generate-commit-msg';
 import { Logger } from './logger';
+import { createProvider } from './providers/factory';
+import type { LLMProvider } from './providers/types';
+import { SecretsManager } from './secrets';
 
-/**
- * Activates the extension and registers commands.
- *
- * @param {vscode.ExtensionContext} context - The context for the extension.
- */
+async function ensureProviderConfigured(
+  provider: LLMProvider,
+  configManager: ConfigurationManager,
+  secrets: SecretsManager
+): Promise<void> {
+  if (!provider.requiresApiKey) return;
+
+  const fromSecrets = await secrets.getApiKey(provider.id as 'openai' | 'claude' | 'gemini');
+  if (fromSecrets) return;
+
+  const fromSettings = configManager.getConfig<string>(provider.apiKeyConfigKey);
+  if (fromSettings && fromSettings.trim() !== '') return;
+
+  const result = await vscode.window.showWarningMessage(
+    `${provider.displayName} API Key not configured. Configure now?`,
+    'Set API Key',
+    'Open Settings',
+    'No'
+  );
+  if (result === 'Set API Key') {
+    await vscode.commands.executeCommand('ai-commit.setApiKey', provider.id);
+  } else if (result === 'Open Settings') {
+    await vscode.commands.executeCommand(
+      'workbench.action.openSettings',
+      'ai-commit'
+    );
+  }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
   try {
     Logger.initialize();
     Logger.info('Activating AI Commit extension...');
 
     const configManager = ConfigurationManager.getInstance(context);
+    const secrets = new SecretsManager(context);
+    configManager.setSecrets(secrets);
+    setSecretsManager(secrets);
 
-    const commandManager = new CommandManager(context);
+    await secrets.migrate();
+
+    const commandManager = new CommandManager(context, secrets);
     commandManager.registerCommands();
 
     context.subscriptions.push({
@@ -26,70 +59,16 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     });
 
-    // Check API key based on configured AI provider
-    const aiProvider = configManager.getConfig<string>(
-      ConfigKeys.AI_PROVIDER,
-      'openai'
-    );
-
-    if (aiProvider === 'gemini') {
-      const geminiApiKey = configManager.getConfig<string>(ConfigKeys.GEMINI_API_KEY);
-      if (!geminiApiKey) {
-        const result = await vscode.window.showWarningMessage(
-          'Gemini API Key not configured. Would you like to configure it now?',
-          'Yes',
-          'No'
-        );
-
-        if (result === 'Yes') {
-          await vscode.commands.executeCommand(
-            'workbench.action.openSettings',
-            'ai-commit.GEMINI_API_KEY'
-          );
-        }
-      }
-    } else if (aiProvider === 'claude') {
-      const claudeApiKey = configManager.getConfig<string>(ConfigKeys.CLAUDE_API_KEY);
-      if (!claudeApiKey) {
-        const result = await vscode.window.showWarningMessage(
-          'Claude API Key not configured. Would you like to configure it now?',
-          'Yes',
-          'No'
-        );
-
-        if (result === 'Yes') {
-          await vscode.commands.executeCommand(
-            'workbench.action.openSettings',
-            'ai-commit.CLAUDE_API_KEY'
-          );
-        }
-      }
-    } else {
-      // Default to OpenAI provider
-      const openaiApiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
-      if (!openaiApiKey) {
-        const result = await vscode.window.showWarningMessage(
-          'OpenAI API Key not configured. Would you like to configure it now?',
-          'Yes',
-          'No'
-        );
-
-        if (result === 'Yes') {
-          await vscode.commands.executeCommand(
-            'workbench.action.openSettings',
-            'ai-commit.OPENAI_API_KEY'
-          );
-        }
-      }
-    }
+    const provider = createProvider({
+      config: configManager,
+      secrets,
+      logger: Logger
+    });
+    await ensureProviderConfigured(provider, configManager, secrets);
   } catch (error) {
     Logger.error('Failed to activate extension:', error);
     throw error;
   }
 }
 
-/**
- * Deactivates the extension.
- * This function is called when the extension is deactivated.
- */
 export function deactivate() {}

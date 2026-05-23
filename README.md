@@ -27,58 +27,82 @@ Use OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API to
 
 ## ✨ Features
 
-- 🤯 Support generating commit messages based on git diffs using OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API.
-- 🧠 Support OpenAI Responses API with configurable reasoning effort and output verbosity.
-- 🗺️ Support multi-language commit messages.
-- 😜 Support adding Gitmoji.
-- 🛠️ Support custom system prompt.
-- 📝 Support Conventional Commits specification.
+- 🔌 **Pluggable providers** — OpenAI (Chat Completions & Responses API), Anthropic Claude, Google Gemini, and **local Ollama** out of the box.
+- 🚀 **OpenAI-compatible presets** — one click to switch to DeepSeek / Zhipu GLM / Qwen (DashScope) / Groq / OpenRouter via `AI Commit: Use OpenAI-Compatible Preset`.
+- 📡 **Streaming output** — commit message is written into the SCM input box character-by-character as it generates.
+- ✋ **Real cancellation** — pressing the progress notification's Cancel button truly aborts the in-flight API request (`AbortController`).
+- 🔐 **SecretStorage** — API keys live in VS Code's OS-backed secret store, not your `settings.json`. Existing settings are migrated automatically.
+- 🧹 **Smart diff** — lock files, `dist/`, `build/`, `.min.*`, and other generated files are excluded by default; oversized diffs are auto-truncated to a configurable token budget.
+- 🧠 **Responses API** — configurable reasoning effort and output verbosity.
+- 🌐 **19 languages** for commit message output.
+- 😜 **Gitmoji** + Conventional Commits, plus custom system prompts.
 
 ## 📦 Installation
 
-1. Search for "AI Commit" in VSCode and click the "Install" button.
-2. Install it directly from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit).
+1. Search for "AI Commit" in VSCode and click "Install".
+2. Or install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Sitoi.ai-commit).
 
-> **Note**\
-> Make sure your node version >= 16
+> **Note**: Requires Node.js >= 18 and VS Code >= 1.77.
 
 ## 🤯 Usage
 
-1. Ensure that you have installed and enabled the "AI Commit" extension.
-2. In VSCode settings, locate the "ai-commit" configuration options and configure them as needed.
-3. Make changes in your project and add the changes to the staging area (git add).
-4. (Optional) If you want to provide additional context for the commit message, type it in the Source Control panel's message input box before clicking the AI Commit button.
-5. Next to the commit message input box in the "Source Control" panel, click the "AI Commit" icon button. After clicking, the extension will generate a commit message (considering any additional context if provided) and populate it in the input box.
-6. Review the generated commit message, and if you are satisfied, proceed to commit your changes.
+1. Run `AI Commit: Set API Key` from the Command Palette and pick a provider. The key is stored in SecretStorage.
+2. (Optional) For non-OpenAI vendors that share the OpenAI protocol, run `AI Commit: Use OpenAI-Compatible Preset` to pre-fill the base URL and a recommended model.
+3. Stage some changes (`git add ...`).
+4. Click the **AI Commit** icon in the Source Control panel header.
+5. Watch the commit message stream into the input box. Review, edit if needed, commit.
 
-> **Note**\
-> If the code exceeds the maximum token length, consider adding it to the staging area in batches.
+## 🛠️ Commands
+
+| Command | Purpose |
+| --- | --- |
+| `AI Commit` (SCM title button) | Generate a commit message from staged changes |
+| `AI Commit: Set API Key` | Store an OpenAI/Claude/Gemini key in SecretStorage |
+| `AI Commit: Use OpenAI-Compatible Preset` | Pre-configure DeepSeek/Zhipu/Qwen/Groq/OpenRouter |
+| `AI Commit: Show Available OpenAI Models` | Pick from `/v1/models` |
+
+## 🧪 Diff handling
+
+| Built-in exclude | Pattern |
+| --- | --- |
+| Lock files | `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `Cargo.lock`, `Pipfile.lock`, `poetry.lock`, `composer.lock`, `Gemfile.lock`, `go.sum`, `bun.lockb` |
+| Generated output | `dist/`, `build/`, `out/`, `.next/`, `node_modules/` |
+| Minified | `*.min.{js,css,map}` |
+
+Customize via `ai-commit.DIFF_EXCLUDE_PATTERNS` (additional regexes) and `ai-commit.DIFF_INCLUDE_DEFAULT_EXCLUDES` (toggle defaults). Token budget is controlled by `ai-commit.DIFF_MAX_TOKENS` (default `8000`).
 
 ### ⚙️ Configuration
 
-> **Note** Version >= 0.0.5 Don't need to configure `EMOJI_ENABLED` and `FULL_GITMOJI_SPEC`, Default Prompt is [prompt/with_gitmoji.md](./prompt/with_gitmoji.md), If don't need to use `Gitmoji`. Please set `SYSTEM_PROMPT` to your custom prompt, please refer to [prompt/without_gitmoji.md](./prompt/without_gitmoji.md).
+> The Gitmoji-enabled prompt is built in; to disable Gitmoji or customize the output format, paste a custom prompt into `AI_COMMIT_SYSTEM_PROMPT` (see [prompt/with_gitmoji.md](./prompt/with_gitmoji.md) and [prompt/without_gitmoji.md](./prompt/without_gitmoji.md) for reference templates).
 
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
-| Configuration           |  Type  |          Default           | Required |                                                               Notes                                                                |
-| :---------------------- | :----: | :------------------------: | :------: | :--------------------------------------------------------------------------------------------------------------------------------: |
-| AI_PROVIDER             | string |           openai           |   Yes    |                                        AI Provider to use: `openai`, `gemini`, or `claude`                                         |
-| OPENAI_API_KEY          | string |            None            |   Yes    |               Required when `AI_PROVIDER` is `openai`. [OpenAI token](https://platform.openai.com/account/api-keys)                |
-| OPENAI_BASE_URL         | string |            None            |    No    |                       If using Azure, use: `https://{resource}.openai.azure.com/openai/deployments/{model}`                        |
-| OPENAI_MODEL            | string |           gpt-4o           |   Yes    |                     OpenAI model. Run the `Show Available OpenAI Models` command to pick from available models                     |
-| AZURE_API_VERSION       | string |            None            |    No    |                                                      Azure API version string                                                      |
-| OPENAI_TEMPERATURE      | number |            0.7             |    No    |               Controls randomness. Range: 0–2. Lower = more focused, Higher = more creative. (Chat Completions only)               |
-| OPENAI_API_TYPE         | string |         completion         |    No    |                             Choose API: `completion` (Chat Completions) or `response` (Responses API)                              |
-| OPENAI_REASONING_EFFORT | string |           medium           |    No    |     Reasoning effort for Responses API: `minimal`, `low`, `medium`, `high`. Only applies when `OPENAI_API_TYPE` is `response`      |
-| OPENAI_TEXT_VERBOSITY   | string |           medium           |    No    |             Output verbosity for Responses API: `low` (~1000 tokens), `medium` (~4000 tokens), `high` (~16000 tokens)              |
-| GEMINI_API_KEY          | string |            None            |   Yes    |                Required when `AI_PROVIDER` is `gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)                 |
-| GEMINI_MODEL            | string |    gemini-2.0-flash-001    |   Yes    |                                                        Gemini model to use                                                         |
-| GEMINI_TEMPERATURE      | number |            0.7             |    No    |                           Controls randomness. Range: 0–2. Lower = more focused, Higher = more creative                            |
-| CLAUDE_API_KEY          | string |            None            |    No    | Anthropic API key. Leave empty to use Claude CLI (authenticated via `claude setup-token`). Required when `AI_PROVIDER` is `claude` |
-| CLAUDE_MODEL            | string | claude-sonnet-4-5-20250929 |    No    |                                                        Claude model to use                                                         |
-| CLAUDE_TEMPERATURE      | number |            0.7             |    No    |                                                  Controls randomness. Range: 0–1                                                   |
-| AI_COMMIT_LANGUAGE      | string |          English           |   Yes    |                                                       Supports 19 languages                                                        |
-| SYSTEM_PROMPT           | string |            None            |    No    |                                                        Custom system prompt                                                        |
+| Configuration                       | Type      | Default                       | Notes |
+| ----------------------------------- | --------- | ----------------------------- | ----- |
+| `AI_PROVIDER`                       | string    | `openai`                      | `openai` / `gemini` / `claude` / `ollama` |
+| `OPENAI_API_KEY`                    | string    | `""`                          | Deprecated — prefer `AI Commit: Set API Key` (SecretStorage) |
+| `OPENAI_BASE_URL`                   | string    | `""`                          | Azure or OpenAI-compatible vendor (DeepSeek/Zhipu/Qwen/Groq/OpenRouter). Use the preset command for one-click setup |
+| `OPENAI_MODEL`                      | string    | `gpt-4o`                      | Run `AI Commit: Show Available OpenAI Models` to discover |
+| `AZURE_API_VERSION`                 | string    | `""`                          | Azure API version |
+| `OPENAI_TEMPERATURE`                | number    | `0.7`                         | 0–2; Chat Completions only |
+| `OPENAI_API_TYPE`                   | enum      | `completion`                  | `completion` or `response` (Responses API) |
+| `OPENAI_REASONING_EFFORT`           | enum      | `medium`                      | `minimal`/`low`/`medium`/`high` (Responses API) |
+| `OPENAI_TEXT_VERBOSITY`             | enum      | `medium`                      | Maps to max output tokens (Responses API) |
+| `GEMINI_API_KEY`                    | string    | `""`                          | Deprecated — use `AI Commit: Set API Key` |
+| `GEMINI_MODEL`                      | string    | `gemini-2.0-flash-001`        | |
+| `GEMINI_TEMPERATURE`                | number    | `0.7`                         | 0–2 |
+| `CLAUDE_API_KEY`                    | string    | `""`                          | Deprecated — use `AI Commit: Set API Key` |
+| `CLAUDE_MODEL`                      | string    | `claude-sonnet-4-5-20250929`  | |
+| `CLAUDE_TEMPERATURE`                | number    | `0.7`                         | 0–1 |
+| `OLLAMA_BASE_URL`                   | string    | `http://localhost:11434/v1`   | Local Ollama OpenAI-compatible endpoint |
+| `OLLAMA_MODEL`                      | string    | `llama3.2`                    | Any pulled local model |
+| `OLLAMA_TEMPERATURE`                | number    | `0.7`                         | 0–2 |
+| `STREAMING_ENABLED`                 | boolean   | `true`                        | Stream output into the SCM input box |
+| `DIFF_MAX_TOKENS`                   | number    | `8000`                        | Approx token budget for the diff |
+| `DIFF_EXCLUDE_PATTERNS`             | string[]  | `[]`                          | Extra regex patterns to exclude (added to defaults) |
+| `DIFF_INCLUDE_DEFAULT_EXCLUDES`     | boolean   | `true`                        | Toggle the built-in exclude list |
+| `AI_COMMIT_LANGUAGE`                | enum      | `English`                     | 19 supported languages |
+| `AI_COMMIT_SYSTEM_PROMPT`           | string    | `""`                          | Custom system prompt that overrides the default |
 
 ## ⌨️ Local Development
 
@@ -92,9 +116,21 @@ Alternatively, you can clone the repository and run the following commands for l
 $ git clone https://github.com/sitoi/ai-commit.git
 $ cd ai-commit
 $ npm install
+$ npm run verify    # typecheck + unit tests
+$ npm run build     # webpack production bundle
 ```
 
-Open the project folder in VSCode. Press F5 to run the project. This will open a new Extension Development Host window and launch the plugin within it.
+Open the project folder in VSCode. Press F5 to run the project. This opens a new Extension Development Host window with the plugin loaded.
+
+### Running tests
+
+```bash
+$ npm run test:unit          # vitest run
+$ npm run test:unit:watch    # watch mode
+$ npm run test:coverage      # with v8 coverage report
+$ npm run lint               # eslint flat config
+$ npm run typecheck          # strict tsc
+```
 
 ## 🤝 Contributing
 

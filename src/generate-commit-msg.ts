@@ -1,197 +1,210 @@
-import * as fs from 'fs-extra';
-import { ChatCompletionMessageParam } from 'openai/resources';
+import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import { ConfigKeys, ConfigurationManager } from './config';
+import {
+  DEFAULT_EXCLUDE_PATTERNS,
+  processDiff,
+  type DiffProcessResult
+} from './diff-processor';
 import { getDiffStaged } from './git-utils';
-import { ChatGPTAPI, ResponsesAPI } from './openai-utils';
-import { getMainCommitPrompt } from './prompts';
-import { ProgressHandler } from './utils';
-import { GeminiAPI } from './gemini-utils';
-import { ClaudeAPI } from './claude-utils';
 import { Logger } from './logger';
+import { AbstractLLMProvider } from './providers/base';
+import { createProvider } from './providers/factory';
+import type { LLMProvider } from './providers/types';
+import { getMainCommitPrompt } from './prompts';
+import type { SecretsManager } from './secrets';
+import type { ChatMessage } from './types/messages';
+import { createAbortBridge, ProgressHandler } from './utils';
 
-/**
- * Generates a chat completion prompt for the commit message based on the provided diff.
- *
- * @param {string} diff - The diff string representing changes to be committed.
- * @param {string} additionalContext - Additional context for the changes.
- * @returns {Promise<Array<{ role: string, content: string }>>} - A promise that resolves to an array of messages for the chat completion.
- */
-const generateCommitMessageChatCompletionPrompt = async (
+let secretsManagerRef: SecretsManager | undefined;
+export function setSecretsManager(secrets: SecretsManager) {
+  secretsManagerRef = secrets;
+}
+
+async function buildMessages(
   diff: string,
   additionalContext?: string
-) => {
-  const INIT_MESSAGES_PROMPT = await getMainCommitPrompt();
-  const chatContextAsCompletionRequest = [...INIT_MESSAGES_PROMPT];
+): Promise<ChatMessage[]> {
+  const base = await getMainCommitPrompt();
+  const messages: ChatMessage[] = [...base];
 
   if (additionalContext) {
-    chatContextAsCompletionRequest.push({
+    messages.push({
       role: 'user',
       content: `Additional context for the changes:\n${additionalContext}`
     });
   }
 
-  chatContextAsCompletionRequest.push({
-    role: 'user',
-    content: diff
-  });
-  return chatContextAsCompletionRequest;
-};
+  messages.push({ role: 'user', content: diff });
+  return messages;
+}
 
-/**
- * Retrieves the repository associated with the provided argument.
- *
- * @param {any} arg - The input argument containing the root URI of the repository.
- * @returns {Promise<vscode.SourceControlRepository>} - A promise that resolves to the repository object.
- */
-export async function getRepo(arg) {
+export async function getRepo(arg: unknown) {
   const gitApi = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1);
   if (!gitApi) {
     throw new Error('Git extension not found');
   }
 
-  if (typeof arg === 'object' && arg.rootUri) {
-    const resourceUri = arg.rootUri;
-    const realResourcePath: string = fs.realpathSync(resourceUri!.fsPath);
-    for (let i = 0; i < gitApi.repositories.length; i++) {
-      const repo = gitApi.repositories[i];
-      if (realResourcePath.startsWith(repo.rootUri.fsPath)) {
-        return repo;
+  if (
+    arg &&
+    typeof arg === 'object' &&
+    'rootUri' in arg &&
+    (arg as { rootUri?: vscode.Uri }).rootUri
+  ) {
+    const resourceUri = (arg as { rootUri: vscode.Uri }).rootUri;
+    try {
+      const realResourcePath = fs.realpathSync(resourceUri.fsPath);
+      for (const repo of gitApi.repositories) {
+        if (realResourcePath.startsWith(repo.rootUri.fsPath)) {
+          return repo;
+        }
       }
+    } catch (err) {
+      Logger.warn(
+        `Failed to resolve real path for ${resourceUri.fsPath}; falling back to first repository`,
+        err
+      );
     }
   }
   return gitApi.repositories[0];
 }
 
-/**
- * Generates a commit message based on the changes staged in the repository.
- *
- * @param {any} arg - The input argument containing the root URI of the repository.
- * @returns {Promise<void>} - A promise that resolves when the commit message has been generated and set in the SCM input box.
- */
-export async function generateCommitMsg(arg) {
-  return ProgressHandler.withProgress('', async (progress) => {
+function buildExcludePatterns(configManager: ConfigurationManager): RegExp[] {
+  const includeDefaults = configManager.getConfig<boolean>(
+    ConfigKeys.DIFF_INCLUDE_DEFAULT_EXCLUDES,
+    true
+  );
+  const userPatterns =
+    configManager.getConfig<string[]>(ConfigKeys.DIFF_EXCLUDE_PATTERNS, []) ?? [];
+
+  const compiled: RegExp[] = [];
+  for (const raw of userPatterns) {
     try {
-      const configManager = ConfigurationManager.getInstance();
-      const repo = await getRepo(arg);
+      compiled.push(new RegExp(raw));
+    } catch (err) {
+      Logger.warn(`Ignoring invalid DIFF_EXCLUDE_PATTERNS entry: ${raw}`, err);
+    }
+  }
+  return includeDefaults ? [...DEFAULT_EXCLUDE_PATTERNS, ...compiled] : compiled;
+}
 
-      const aiProvider = configManager.getConfig<string>(
-        ConfigKeys.AI_PROVIDER,
-        'openai'
+async function runStreamingGeneration(
+  provider: LLMProvider,
+  messages: ChatMessage[],
+  scmInputBox: { value: string },
+  signal: AbortSignal
+): Promise<string> {
+  if (!provider.generateStream) {
+    return provider.generate(messages, { signal });
+  }
+  scmInputBox.value = '';
+  let buffer = '';
+  for await (const chunk of provider.generateStream(messages, { signal })) {
+    buffer += chunk;
+    scmInputBox.value = AbstractLLMProvider.cleanThinkTags(buffer);
+  }
+  return AbstractLLMProvider.cleanThinkTags(buffer);
+}
+
+function reportDiffStats(
+  progress: vscode.Progress<{ message?: string }>,
+  result: DiffProcessResult
+) {
+  if (result.excludedFiles.length > 0) {
+    Logger.info(`Excluded ${result.excludedFiles.length} file(s) from diff:`);
+    for (const file of result.excludedFiles) Logger.info(`  - ${file}`);
+  }
+  if (result.truncated) {
+    progress.report({ message: 'Diff was large; truncated to fit token budget.' });
+    Logger.warn('Diff truncated due to DIFF_MAX_TOKENS limit');
+  }
+}
+
+export async function generateCommitMsg(arg: unknown) {
+  return ProgressHandler.withProgress('', async (progress, token) => {
+    const configManager = ConfigurationManager.getInstance();
+    const secrets = secretsManagerRef;
+    if (!secrets) {
+      throw new Error('SecretsManager not initialized');
+    }
+
+    const repo = await getRepo(arg);
+    const provider = createProvider({
+      config: configManager,
+      secrets,
+      logger: Logger
+    });
+    Logger.info(`Using AI provider: ${provider.id}`);
+
+    progress.report({ message: 'Getting staged changes...' });
+    const { diff: rawDiff, error } = await getDiffStaged(repo);
+
+    if (error) {
+      throw new Error(`Failed to get staged changes: ${error}`);
+    }
+    if (!rawDiff || rawDiff === 'No changes staged.') {
+      throw new Error('No changes staged for commit');
+    }
+
+    const maxTokens = configManager.getConfig<number>(
+      ConfigKeys.DIFF_MAX_TOKENS,
+      8000
+    );
+    const excludePatterns = buildExcludePatterns(configManager);
+    const processed = processDiff(rawDiff, { maxTokens, excludePatterns });
+    reportDiffStats(progress, processed);
+
+    if (!processed.diff) {
+      throw new Error(
+        'After filtering, no diff content remained. All changed files matched exclude patterns.'
       );
-      Logger.info(`Using AI provider: ${aiProvider}`);
+    }
 
-      progress.report({ message: 'Getting staged changes...' });
-      const { diff, error } = await getDiffStaged(repo);
+    const scmInputBox = repo.inputBox;
+    if (!scmInputBox) {
+      throw new Error('Unable to find the SCM input box');
+    }
 
-      if (error) {
-        throw new Error(`Failed to get staged changes: ${error}`);
+    const additionalContext = scmInputBox.value.trim();
+    progress.report({
+      message: additionalContext
+        ? 'Analyzing changes with additional context...'
+        : 'Analyzing changes...'
+    });
+
+    const messages = await buildMessages(processed.diff, additionalContext);
+    const streamingEnabled = configManager.getConfig<boolean>(
+      ConfigKeys.STREAMING_ENABLED,
+      true
+    );
+
+    progress.report({
+      message: streamingEnabled
+        ? 'Streaming commit message...'
+        : 'Generating commit message...'
+    });
+
+    const bridge = createAbortBridge(token);
+    try {
+      await provider.validate();
+      const commitMessage = streamingEnabled
+        ? await runStreamingGeneration(provider, messages, scmInputBox, bridge.signal)
+        : await provider.generate(messages, { signal: bridge.signal });
+
+      if (!commitMessage) {
+        throw new Error('Failed to generate commit message');
       }
-
-      if (!diff || diff === 'No changes staged.') {
-        throw new Error('No changes staged for commit');
+      scmInputBox.value = commitMessage;
+      Logger.info('Commit message generated successfully');
+    } catch (err) {
+      if (token.isCancellationRequested) {
+        Logger.info('Generation cancelled by user');
+        return;
       }
-
-      const scmInputBox = repo.inputBox;
-      if (!scmInputBox) {
-        throw new Error('Unable to find the SCM input box');
-      }
-
-      const additionalContext = scmInputBox.value.trim();
-
-      progress.report({
-        message: additionalContext
-          ? 'Analyzing changes with additional context...'
-          : 'Analyzing changes...'
-      });
-      const messages = await generateCommitMessageChatCompletionPrompt(
-        diff,
-        additionalContext
-      );
-
-      progress.report({
-        message: additionalContext
-          ? 'Generating commit message with additional context...'
-          : 'Generating commit message...'
-      });
-      try {
-        let commitMessage: string | undefined;
-
-        if (aiProvider === 'gemini') {
-          const geminiApiKey = configManager.getConfig<string>(
-            ConfigKeys.GEMINI_API_KEY
-          );
-          if (!geminiApiKey) {
-            throw new Error('Gemini API Key not configured');
-          }
-          commitMessage = await GeminiAPI(messages);
-        } else if (aiProvider === 'claude') {
-          const claudeApiKey = configManager.getConfig<string>(
-            ConfigKeys.CLAUDE_API_KEY
-          );
-          if (!claudeApiKey) {
-            throw new Error('Claude API Key not configured');
-          }
-          commitMessage = await ClaudeAPI(messages);
-        } else {
-          const openaiApiKey = configManager.getConfig<string>(
-            ConfigKeys.OPENAI_API_KEY
-          );
-          if (!openaiApiKey) {
-            throw new Error('OpenAI API Key not configured');
-          }
-          const apiType = configManager.getConfig<string>(
-            ConfigKeys.OPENAI_API_TYPE,
-            'completion'
-          );
-          if (apiType === 'response') {
-            commitMessage = await ResponsesAPI(
-              messages as ChatCompletionMessageParam[]
-            );
-          } else {
-            commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
-          }
-        }
-
-        if (commitMessage) {
-          // 清理 think 标签内容
-          commitMessage = commitMessage.replace(/<think>.*?<\/think>/gs, '').trim();
-          Logger.info('Commit message generated successfully');
-          scmInputBox.value = commitMessage;
-        } else {
-          throw new Error('Failed to generate commit message');
-        }
-      } catch (err: any) {
-        Logger.error(`${aiProvider} API call failed:`, err);
-        let errorMessage =
-          (err instanceof Error && err.message) ||
-          (typeof err === 'string' ? err : 'An unexpected error occurred');
-
-        if (aiProvider === 'openai' && err?.response?.status) {
-          switch (err.response.status) {
-            case 401:
-              errorMessage = 'Invalid OpenAI API key or unauthorized access';
-              break;
-            case 429:
-              errorMessage = 'Rate limit exceeded. Please try again later';
-              break;
-            case 500:
-              errorMessage = 'OpenAI server error. Please try again later';
-              break;
-            case 503:
-              errorMessage = 'OpenAI service is temporarily unavailable';
-              break;
-          }
-        } else if (aiProvider === 'gemini') {
-          errorMessage = `Gemini API error: ${err.message}`;
-        } else if (aiProvider === 'claude') {
-          errorMessage = `Claude API error: ${err.message}`;
-        }
-
-        throw new Error(errorMessage);
-      }
-    } catch (error) {
-      throw error;
+      Logger.error(`${provider.id} API call failed:`, err);
+      throw err instanceof Error ? err : new Error(String(err));
+    } finally {
+      bridge.dispose();
     }
   });
 }

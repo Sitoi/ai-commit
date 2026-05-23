@@ -1,0 +1,13 @@
+{
+  "extension.displayName": "AI Commit",
+  "extension.description": "Generate conventional Git commit messages from staged diffs using OpenAI / Claude / Gemini / Ollama and OpenAI-compatible providers (DeepSeek, Zhipu, Qwen, Groq, OpenRouter).",
+  "command.aiCommit": "AI Commit",
+  "command.showAvailableModels": "AI Commit: Show Available OpenAI Models",
+  "command.setApiKey": "AI Commit: Set API Key (stored in SecretStorage)",
+  "command.useOpenAIPreset": "AI Commit: Use OpenAI-Compatible Preset (DeepSeek/Zhipu/Qwen/Groq/OpenRouter)",
+  "config.aiProvider.description": "AI Provider to use.",
+  "config.streamingEnabled.description": "Stream the generated commit message into the SCM input box character-by-character.",
+  "config.diffMaxTokens.description": "Maximum approximate tokens of diff to send to the model. Larger diffs are truncated.",
+  "config.diffExcludePatterns.description": "Additional regex patterns for file paths to exclude from the diff (applied on top of built-in defaults).",
+  "config.diffIncludeDefaultExcludes.description": "Use built-in exclude patterns for lock files, dist/, build/, .min files, etc."
+}
