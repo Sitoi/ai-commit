@@ -77,7 +77,7 @@ In the VSCode settings, locate the "ai-commit" configuration options and configu
 | CLAUDE_API_KEY          | string |            None            |    No    | Anthropic API key. Leave empty to use Claude CLI (authenticated via `claude setup-token`). Required when `AI_PROVIDER` is `claude` |
 | CLAUDE_MODEL            | string | claude-sonnet-4-5-20250929 |    No    |                                                        Claude model to use                                                         |
 | CLAUDE_TEMPERATURE      | number |            0.7             |    No    |                                                  Controls randomness. Range: 0–1                                                   |
-| AI_COMMIT_LANGUAGE      | string |          English           |   Yes    |                                                       Supports 19 languages                                                        |
+| AI_COMMIT_LANGUAGE      | string |          English           |   Yes    |                                                       Supports 20 languages                                                        |
 | SYSTEM_PROMPT           | string |            None            |    No    |                                                        Custom system prompt                                                        |
 
 ## ⌨️ Local Development

@@ -77,7 +77,7 @@
 | CLAUDE_API_KEY          | string |            None            |  否  | Anthropic API 密钥。留空可使用 Claude CLI（通过 `claude setup-token` 认证）。`AI_PROVIDER` 为 `claude` 时需配置 |
 | CLAUDE_MODEL            | string | claude-sonnet-4-5-20250929 |  否  |                                                Claude 使用的模型                                                |
 | CLAUDE_TEMPERATURE      | number |            0.7             |  否  |                                            控制输出随机性。范围：0–1                                            |
-| AI_COMMIT_LANGUAGE      | string |          English           |  是  |                                                 支持 19 种语言                                                  |
+| AI_COMMIT_LANGUAGE      | string |          English           |  是  |                                                 支持 20 种语言                                                  |
 | SYSTEM_PROMPT           | string |            None            |  否  |                                                自定义系统提示词                                                 |
 
 ## ⌨️ 本地开发
